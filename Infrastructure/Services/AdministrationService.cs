@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services
 {
-    public class AdministrationService: IAdministrationService
+    public class AdministrationService : IAdministrationService
     {
         private UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
