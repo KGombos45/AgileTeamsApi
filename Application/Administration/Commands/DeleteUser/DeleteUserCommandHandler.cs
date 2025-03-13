@@ -14,7 +14,7 @@ namespace Application.Administration.Commands.DeleteUser
 
         public async Task<Unit> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
-            await _administrationService.DeleteUser(request.UserId, request.User);
+            await _administrationService.DeleteUser(request.UserId);
 
             return Unit.Value;
         }

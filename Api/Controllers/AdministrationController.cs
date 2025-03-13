@@ -44,12 +44,11 @@ public class AdministrationController : ApiControllerBase
     [HttpPost]
     [Route("DeleteUser/{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteUser([FromRoute] string id, [FromBody] ApplicationUser applicationUserRole)
+    public async Task<IActionResult> DeleteUser([FromRoute] string id)
     {
         var command = new DeleteUserCommand
         {
             UserId = id,
-            User = applicationUserRole,
         };
 
         await Mediator.Send(command);

@@ -12,7 +12,7 @@ namespace Application.Common.Interfaces
     {
         public Task<List<ApplicationUser>> GetUserProfiles();
         public Task<IdentityResult> UpdateUserRole(string id, ApplicationUser applicationUser);
-        public Task<IdentityResult> DeleteUser(string id, ApplicationUser applicationUser);
+        public Task<IdentityResult> DeleteUser(string id);
         public Task<List<string>> GetRoles();
     }
 }

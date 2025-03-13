@@ -23,10 +23,6 @@ namespace Application
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(UpdateUserRoleLoggingBehavior).Assembly));
-            services.AddTransient(typeof(IPipelineBehavior<DeleteUserCommand, Unit>), typeof(DeleteUserLoggingBehavior));
-            services.AddTransient(typeof(IPipelineBehavior<UpdateUserRoleCommand, Unit>), typeof(DeleteUserLoggingBehavior));
-            services.AddTransient(typeof(IPipelineBehavior<GetUserProfilesQuery, List<ApplicationUser>>), typeof(GetUserProfilesLoggingBehavior));
-            services.AddTransient(typeof(IPipelineBehavior<GetRolesQuery, List<string>>), typeof(GetRolesLoggingBehavior));
             return services;
         }
     }

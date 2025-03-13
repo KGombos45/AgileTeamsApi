@@ -1,27 +1,31 @@
-﻿using Application;
-using Application.Common.Interfaces;
-using AutoMapper;
+﻿using Application.Common.Interfaces;
+using Domain.Entities.AgileTeams;
 using Infrastructure.Persistence;
 using Infrastructure.Services;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Runtime.CompilerServices;
 
-namespace Infrastructure;
-
-public static class DependencyInjection
+namespace Infrastructure
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services,
-        IConfiguration configuration)
+    public static class DependencyInjection
     {
-        services.AddDbContext<AgileTeamsContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("AgileTeamsConnection")));
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDbContext<AgileTeamsContext>(options =>
+                options.UseSqlServer(configuration.GetConnectionString("AgileTeamsConnection"), 
+                b => b.MigrationsAssembly("Api")));
 
-        services.AddScoped<IAgileTeamsContext, AgileTeamsContext>();
-        services.AddScoped<IAdministrationService, AdministrationService>();
+            services.AddScoped<IAgileTeamsContext, AgileTeamsContext>();
+            services.AddScoped<IAdministrationService, AdministrationService>();
 
-        return services;
+            // Add Identity services
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<AgileTeamsContext>()
+                .AddDefaultTokenProviders();
+
+            return services;
+        }
     }
 }

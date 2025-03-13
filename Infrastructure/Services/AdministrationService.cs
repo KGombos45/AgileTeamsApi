@@ -64,7 +64,7 @@ namespace Infrastructure.Services
             return result;
         }
 
-        public async Task<IdentityResult> DeleteUser(string id, ApplicationUser applicationUser)
+        public async Task<IdentityResult> DeleteUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
 

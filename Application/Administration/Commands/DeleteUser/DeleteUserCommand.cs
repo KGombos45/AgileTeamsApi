@@ -10,8 +10,6 @@ namespace Application.Administration.Commands.DeleteUser
 {
     public class DeleteUserCommand : IRequest<Unit>
     {
-        public DeleteUserCommand() { }
         public string UserId { get; set; }
-        public ApplicationUser User { get; set; }
     }
 }
