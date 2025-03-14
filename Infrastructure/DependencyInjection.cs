@@ -22,6 +22,7 @@ namespace Infrastructure
             services.AddScoped<IAdministrationService, AdministrationService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IProjectService, ProjectService>();
+            services.AddScoped<ITicketService, TicketService>();
             services.AddSingleton<ApplicationUserAuth>();
 
             // Add Identity services
