@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 using Application.Common.Interfaces;
 using MediatR;
 
-namespace Application.UserLogin.Commands.Login
+namespace Application.Accounts.Commands.Login
 {
     public class LoginCommandHandler : IRequestHandler<LoginCommand, string>
     {
-        private readonly IUserLoginService _userLoginService;
-        public LoginCommandHandler(IUserLoginService userLoginService)
+        private readonly IAccountService _accountsService;
+        public LoginCommandHandler(IAccountService accountsService)
         {
-            _userLoginService = userLoginService;
+            _accountsService = accountsService;
         }
 
         public async Task<string> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
-            var response = await _userLoginService.Login(request.UserName, request.Password);
+            var response = await _accountsService.Login(request.UserName, request.Password);
 
             return response;
         }

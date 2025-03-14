@@ -3,6 +3,7 @@ using Domain.Entities.AgileTeams;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Project = Domain.Entities.AgileTeams.Project;
 
 namespace Infrastructure.Persistence
 {

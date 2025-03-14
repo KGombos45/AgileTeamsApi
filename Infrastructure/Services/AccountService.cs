@@ -1,36 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Application.Common.Interfaces;
 using Application.Common.Models;
 using Domain.Entities.AgileTeams;
 using Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualStudio.Services.Users;
 
 namespace Infrastructure.Services
 {
-    public class UserLoginService : IUserLoginService
+    public class AccountService : IAccountService
     {
         private UserManager<ApplicationUser> _userManager;
-        private SignInManager<ApplicationUser> _signInManager;
         private readonly AgileTeamsContext _agileTeamsContext;
         private readonly ApplicationUserAuth _applicationUserAuth;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
 
-        public UserLoginService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AgileTeamsContext agileTeamsContext, ApplicationUserAuth applicationUserAuth)
+        public AccountService(UserManager<ApplicationUser> userManager, AgileTeamsContext agileTeamsContext, ApplicationUserAuth applicationUserAuth, IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
-            _signInManager = signInManager;
             _agileTeamsContext = agileTeamsContext;
             _applicationUserAuth = applicationUserAuth;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IdentityResult> Register(ApplicationUser user)
@@ -97,9 +96,45 @@ namespace Infrastructure.Services
             }
         }
 
+        public async Task<ApplicationUser> GetUserAccount()
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext == null)
+            {
+                throw new InvalidOperationException("HttpContext is null");
+            }
+
+            string userId = httpContext.User.Claims.First(x => x.Type == "UserID").Value;
+            var user = await _userManager.FindByIdAsync(userId);
+
+            return user;
+        }
+
+        public async Task<IdentityResult> UpdateUserAccount(string id, ApplicationUser user)
+        {
+            var applicationUser = await _userManager.FindByIdAsync(user.Id);
+
+            if (applicationUser == null)
+            {
+                throw new DirectoryNotFoundException();
+            }
+
+            try
+            {
+                var result = await _userManager.UpdateAsync(user);
+
+                return result;
+
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new DbUpdateConcurrencyException();
+            }
+        }
+
         private async Task<bool> ContextHasUser(string Id)
         {
-            return await _agileTeamsContext.ApplicationUsers.AnyAsync(user => user.ID == Id);
+            return await _agileTeamsContext.ApplicationUsers.AnyAsync(user => user.Id == Id);
         }
     }
 }

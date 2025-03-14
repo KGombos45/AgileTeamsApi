@@ -7,20 +7,20 @@ using Application.Common.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
-namespace Application.UserLogin.Commands.Register
+namespace Application.Account.Commands.Register
 {
     public class RegisterCommandHandler : IRequestHandler<RegisterCommand, IdentityResult>
     {
-        private readonly IUserLoginService _userLoginService;
+        private readonly IAccountService _accountsService;
 
-        public RegisterCommandHandler(IUserLoginService userLoginService)
+        public RegisterCommandHandler(IAccountService accountsService)
         {
-            _userLoginService = userLoginService;
+            _accountsService = accountsService;
         }
 
         public async Task<IdentityResult> Handle(RegisterCommand request, CancellationToken cancellationToken)
         {
-            var response = await _userLoginService.Register(request.User);
+            var response = await _accountsService.Register(request.User);
 
             return response;
         }

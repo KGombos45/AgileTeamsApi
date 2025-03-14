@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Common.Interfaces
 {
+    using Project = Domain.Entities.AgileTeams.Project;
     public interface IAgileTeamsContext: IDbContext
     {
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }

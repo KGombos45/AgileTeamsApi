@@ -7,7 +7,7 @@ using Domain.Entities.AgileTeams;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
-namespace Application.UserLogin.Commands.Register
+namespace Application.Account.Commands.Register
 {
     public class RegisterCommand : IRequest<IdentityResult>
     {

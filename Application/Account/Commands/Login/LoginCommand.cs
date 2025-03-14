@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MediatR;
 
-namespace Application.UserLogin.Commands.Login
+namespace Application.Accounts.Commands.Login
 {
     public class LoginCommand : IRequest<string>
     {
