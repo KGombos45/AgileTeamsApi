@@ -85,11 +85,5 @@ namespace Infrastructure.Services
             return await _roleManager.Roles.Select(role => role.Name).ToListAsync();
         }
 
-
-        private async Task<bool> ApplicationUserExists(string id)
-        {
-            return await _agileTeamsContext.ApplicationUsers.AnyAsync(user => user.Id == id);
-        }
-
     }
 }
