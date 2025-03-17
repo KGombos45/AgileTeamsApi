@@ -47,8 +47,17 @@ namespace Infrastructure.Services
                 throw new InvalidOperationException("Email already register.");
             }
 
-            var result = await _userManager.CreateAsync(user, user.Password);
-            await _userManager.AddToRoleAsync(user, user.Role);
+            var applicationUser = new ApplicationUser
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Role = "User"
+            };
+
+            var result = await _userManager.CreateAsync(applicationUser, user.Password);
+            await _userManager.AddToRoleAsync(applicationUser, applicationUser.Role);
 
             return result;
         }
