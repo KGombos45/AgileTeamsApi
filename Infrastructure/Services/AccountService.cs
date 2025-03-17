@@ -35,7 +35,17 @@ namespace Infrastructure.Services
 
         public async Task<IdentityResult> Register(UserRegistrationDto user)
         {
-            user.Role = "Default";
+            var existingUser = await _userManager.FindByNameAsync(user.UserName);
+            var existingEmail = await _userManager.FindByEmailAsync(user.Email);
+
+            if (existingUser != null)
+            {
+                throw new InvalidOperationException("Username already registered.");
+            }
+
+            if (existingEmail != null) {
+                throw new InvalidOperationException("Email already register.");
+            }
 
             var result = await _userManager.CreateAsync(user, user.Password);
             await _userManager.AddToRoleAsync(user, user.Role);
