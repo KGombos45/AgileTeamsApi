@@ -14,14 +14,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("v{version:apiVersion}/[controller]")]
     [ApiController]
     public class TicketController : ApiControllerBase
     {
-        [HttpPost]
-        [Route("Create")]
-        //POST: api/Ticket/Create
-        public async Task<ActionResult> Create(Ticket ticket)
+        [HttpPost("create", Name = nameof(Create))]
+        public async Task<ActionResult> Create([FromBody] Ticket ticket)
         {
             var command = new CreateCommand
             {
@@ -33,10 +31,8 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPut]
-        [Route("Update")]
-        //PUT : /api/Ticket/UpdateTicket
-        public async Task<ActionResult> Update(Ticket ticket)
+        [HttpPut("update", Name = nameof(Update))]
+        public async Task<ActionResult> Update([FromBody] Ticket ticket)
         {
             var command = new UpdateCommand
             {
@@ -48,9 +44,8 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPost]
-        [Route("Delete")]
-        public async Task<ActionResult> Delete(string ticketId)
+        [HttpPost("{ticketId}/delete", Name = nameof(Delete))]
+        public async Task<ActionResult> Delete([FromRoute] string ticketId)
         {
             var command = new DeleteCommand
             {
@@ -62,9 +57,7 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpGet]
-        [Route("Statuses")]
-        //GET : /api/Project/Statuses
+        [HttpGet("statuses", Name = nameof(GetStatuses))]
         public async Task<ActionResult<List<TicketStatus>>> GetStatuses()
         {
             var response = await Mediator.Send(new GetStatusesQuery());
@@ -72,9 +65,7 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet]
-        [Route("Types")]
-        //GET : /api/Ticket/Types
+        [HttpGet("types", Name = nameof(GetTypes))]
         public async Task<ActionResult<List<TicketType>>> GetTypes()
         {
             var response = await Mediator.Send(new GetTypesQuery());
@@ -82,9 +73,7 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet]
-        [Route("GetTicketStatusCount")]
-        //GET : /api/Ticket/GetTicketStatusCount
+        [HttpGet("ticketStatusCount", Name = nameof(GetTicketStatusCount))]
         public async Task<ActionResult<List<Array>>> GetTicketStatusCount()
         {
             var response = await Mediator.Send(new GetTicketStatusCountQuery());
@@ -92,9 +81,7 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet]
-        [Route("GetTicketTypeCount")]
-        //GET : /api/Ticket/GetTicketTypeCount
+        [HttpGet("ticketTypeCount", Name = nameof(GetTicketTypeCount))]
         public async Task<ActionResult<List<Array>>> GetTicketTypeCount()
         {
             var response = await Mediator.Send(new GetTicketTypeCountQuery());
@@ -102,9 +89,7 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet]
-        [Route("GetTicketOwnerCount")]
-        //GET : /api/Ticket/GetTicketOwnerCount
+        [HttpGet("ticketOwnerCount", Name = nameof(GetTicketOwnerCount))]
         public async Task<ActionResult<List<Array>>> GetTicketOwnerCount()
         {
             var response = await Mediator.Send(new GetTicketOwnerCountQuery());
@@ -112,9 +97,7 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet]
-        [Route("Tickets")]
-        //GET : /api/Ticket/Tickets
+        [HttpGet("tickets", Name = nameof(GetTickets))]
         public async Task<ActionResult<List<Ticket>>> GetTickets()
         {
            var response = await Mediator.Send(new GetTicketsQuery());
@@ -122,10 +105,8 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet]
-        [Route("Tickets/{userId}")]
-        //GET : /api/Ticket/Tickets
-        public async Task<ActionResult<List<Ticket>>> GetUserTickets(string userId)
+        [HttpGet("{userId}/tickets", Name = nameof(GetTickets))]
+        public async Task<ActionResult<List<Ticket>>> GetUserTickets([FromRoute] string userId)
         {
             var query = new GetUserTicketsQuery
             {

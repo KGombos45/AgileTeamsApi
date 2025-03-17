@@ -9,14 +9,12 @@ using Project = Domain.Entities.AgileTeams.Project;
 
 namespace Api.Controllers
 {
+    [Route("v{version:apiVersion}/[controller]")]
     [ApiController]
-    [Route("[controller]")]
     public class ProjectController : ApiControllerBase
     {
-        [HttpPost]
-        [Route("Create")]
-        //POST: api/Project/Create
-        public async Task<ActionResult> Create(Project project)
+        [HttpPost("create", Name = nameof(Create))]
+        public async Task<ActionResult> Create([FromBody] Project project)
         {
             var command = new CreateCommand
             {
@@ -29,10 +27,8 @@ namespace Api.Controllers
         }
 
 
-        [HttpPut]
-        [Route("Update")]
-        //PUT : /api/Project/Update
-        public async Task<ActionResult> Update(Project project)
+        [HttpPut("update", Name = nameof(Update))]
+        public async Task<ActionResult> Update([FromBody] Project project)
         {
             var command = new UpdateCommand
             {
@@ -44,9 +40,8 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPost]
-        [Route("Delete")]
-        public async Task<ActionResult> Delete(string projectId)
+        [HttpPost("{projectId}delete", Name = nameof(Delete))]
+        public async Task<ActionResult> Delete([FromRoute] string projectId)
         {
             var command = new DeleteCommand
             {
@@ -58,9 +53,7 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpGet]
-        [Route("Projects")]
-        //GET : /api/Project/Projects
+        [HttpGet("projects", Name = nameof(GetProjects))]
         public async Task<ActionResult<List<Project>>> GetProjects()
         {
            var response = await Mediator.Send(new GetProjectsQuery());

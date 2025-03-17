@@ -17,12 +17,11 @@ using Application.Account.Commands.UpdateUserAccount;
 
 namespace Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("v{version:apiVersion}/[controller]")]
     [ApiController]
     public class AccountController : ApiControllerBase
     {
-        [HttpPost]
-        [Route("Register")]
+        [HttpPost("register", Name = nameof(Register))]
         public async Task<ActionResult<IdentityResult>> Register([FromBody] UserRegistrationDto request)
         {
             var command = new RegisterCommand
@@ -35,8 +34,7 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpPost]
-        [Route("Login")]
+        [HttpPost("login", Name = nameof(Login))]
         public async Task<ActionResult<string>> Login([FromBody] ApplicationUserLogin request)
         {
             var command = new LoginCommand
@@ -50,9 +48,8 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet]
+        [HttpGet("userAccount")]
         [Authorize]
-        //Get : /api/UserAccount
         public async Task<ActionResult<ApplicationUser>> GetUserAccount()
         {
             var response = await Mediator.Send(new GetUserAccountQuery());
@@ -61,9 +58,8 @@ namespace Api.Controllers
 
         }
 
-        [HttpPut("{id}")]
-        //Put : /api/UserAccount/id
-        public async Task<ActionResult<IdentityResult>> UpdateUserAccount(string id, ApplicationUser user)
+        [HttpPut("update", Name = nameof(UpdateUserAccount))]
+        public async Task<ActionResult<IdentityResult>> UpdateUserAccount([FromBody] ApplicationUser user)
         {
             var command = new UpdateUserAccountCommand
             {

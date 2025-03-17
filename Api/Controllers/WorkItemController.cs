@@ -16,14 +16,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("v{version:apiVersion}/[controller]")]
     [ApiController]
     public class WorkItemController : ApiControllerBase
     {
-        [HttpPost]
-        [Route("Create")]
-        //POST: api/WorkItem/Create
-        public async Task<ActionResult> Create(WorkItem workItem)
+        [HttpPost("create", Name = nameof(Create))]
+        public async Task<ActionResult> Create([FromBody] WorkItem workItem)
         {
             var command = new CreateCommand
             {
@@ -35,10 +33,8 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPut]
-        [Route("Update")]
-        //PUT : /api/WorkItem/Update
-        public async Task<ActionResult> Update(WorkItem workItem)
+        [HttpPut("update", Name = nameof(Update))]
+        public async Task<ActionResult> Update([FromBody] WorkItem workItem)
         {
             var command = new UpdateCommand
             {
@@ -50,9 +46,8 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPost]
-        [Route("Delete")]
-        public async Task<ActionResult> Delete(string workItemId)
+        [HttpPost("{workItemId}/delete", Name = nameof(Delete))]
+        public async Task<ActionResult> Delete([FromRoute] string workItemId)
         {
             var command = new DeleteCommand
             {
@@ -64,10 +59,8 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPost]
-        [Route("AddComment")]
-        //POST: api/WorkItem/AddComment
-        public async Task<ActionResult<WorkItem>> CreateComment(WorkItemComment workItemComment)
+        [HttpPost("addComment", Name = nameof(CreateComment))]
+        public async Task<ActionResult<WorkItem>> CreateComment([FromBody] WorkItemComment workItemComment)
         {
             var command = new CreateCommentCommand
             {
@@ -79,9 +72,7 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpGet]
-        [Route("Statuses")]
-        //GET : /api/WorkItem/Statuses
+        [HttpGet("statuses", Name = nameof(GetStatuses))]
         public async Task<ActionResult<List<WorkItemStatus>>> GetStatuses()
         {
             var response = await Mediator.Send(new GetStatusesQuery());
@@ -89,9 +80,7 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet]
-        [Route("Types")]
-        //GET : /api/WorkItem/Types
+        [HttpGet("types", Name = nameof(GetTypes))]
         public async Task<ActionResult<List<WorkItemType>>> GetTypes()
         {
             var response = await Mediator.Send(new GetTypesQuery());
@@ -99,9 +88,7 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet]
-        [Route("Priorities")]
-        //GET : /api/WorkItem/Priorities
+        [HttpGet("priorities", Name = nameof(GetPriorities))]
         public async Task<ActionResult<List<WorkItemPriority>>> GetPriorities()
         {
             var response = await Mediator.Send(new GetPrioritiesQuery());
@@ -109,9 +96,7 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet]
-        [Route("WorkItems")]
-        //GET : /api/WorkItem/WorkItems
+        [HttpGet("workItems", Name = nameof(GetWorkItems))]
         public async Task<ActionResult<List<WorkItem>>> GetWorkItems()
         {
             var response = await Mediator.Send(new GetWorkItemsQuery());
@@ -120,9 +105,7 @@ namespace Api.Controllers
         }
 
 
-        [HttpGet]
-        [Route("GetWorkItemStatusCount")]
-        //GET : /api/WorkItem/GetWorkItemStatusCounts
+        [HttpGet("workItemStatusCount", Name = nameof(GetWorkItemStatusCount))]
         public async Task<ActionResult<List<Array>>> GetWorkItemStatusCount()
         {
             var response = await Mediator.Send(new GetWorkItemStatusCountQuery());
@@ -131,9 +114,7 @@ namespace Api.Controllers
         }
 
 
-        [HttpGet]
-        [Route("GetWorkItemPriorityCount")]
-        //GET : /api/WorkItem/GetWorkItemPriorityCounts
+        [HttpGet("workItemPriorityCount", Name = nameof(GetWorkItemPriorityCount))]
         public async Task<ActionResult<List<Array>>> GetWorkItemPriorityCount()
         {
             var response = await Mediator.Send(new GetWorkItemPriorityCountQuery());
@@ -141,9 +122,7 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet]
-        [Route("GetWorkItemOwnerCount")]
-        //GET : /api/WorkItem/GetWorkItemOwnerCounts
+        [HttpGet("workItemOwnerCount", Name = nameof(GetWorkItemOwnerCount))]
         public async Task<ActionResult<List<Array>>> GetWorkItemOwnerCount()
         {
             var response = await Mediator.Send(new GetWorkItemOwnerCountQuery());
@@ -151,10 +130,8 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet]
-        [Route("WorkItems/{userId}")]
-        //GET : /api/WorkItem/WorkItems
-        public async Task<ActionResult<List<WorkItem>>> GetUserWorkItems(string userId)
+        [HttpGet("{userId}/workItems", Name = nameof(GetUserWorkItems))]
+        public async Task<ActionResult<List<WorkItem>>> GetUserWorkItems([FromRoute] string userId)
         {
             var query = new GetUserWorkItemsQuery
             {

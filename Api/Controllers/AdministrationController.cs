@@ -9,13 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
+[Route("v{version:apiVersion}/[controller]")]
 [ApiController]
-[Route("[controller]")]
 public class AdministrationController : ApiControllerBase
 {
-    [HttpGet]
-    [Route("Users")]
-    //GET : /api/Administration/Users
+    [HttpGet("users", Name = nameof(GetUserProfiles))]
     public async Task<ActionResult<List<ApplicationUser>>> GetUserProfiles()
     {
         var response = await Mediator.Send(new GetUserProfilesQuery());
@@ -24,10 +22,8 @@ public class AdministrationController : ApiControllerBase
 
     }
 
-    [HttpPut]
-    [Route("UpdateRole/{id}")]
+    [HttpPut("{id}/update", Name = nameof(UpdateUserRole))]
     [Authorize(Roles = "Admin")]
-    //PUT : /api/Administration/
     public async Task<IActionResult> UpdateUserRole([FromRoute] string id, [FromBody] ApplicationUser applicationUserRole)
     {
         var command = new UpdateUserRoleCommand
@@ -41,8 +37,7 @@ public class AdministrationController : ApiControllerBase
         return Ok();
     }
 
-    [HttpPost]
-    [Route("DeleteUser/{id}")]
+    [HttpPost("{id}/delete", Name = nameof(DeleteUser))]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteUser([FromRoute] string id)
     {
@@ -56,10 +51,8 @@ public class AdministrationController : ApiControllerBase
         return Ok();
     }
 
-    [HttpGet]
+    [HttpGet("roles")]
     [Authorize(Roles = "Admin")]
-    [Route("Roles")]
-    //GET : /api/Administration/Users
     public async Task<IActionResult> GetRoles()
     {
         var response = await Mediator.Send(new GetRolesQuery());

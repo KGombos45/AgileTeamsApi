@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35828.75 d17.13
+VisualStudioVersion = 17.13.35828.75
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{C5B36DDC-537F-4207-AF23-431A126A4BA8}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -18,6 +18,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{0A688FB7-46F1-437A-8398-71654DE1D2BA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{95B50F2E-9507-44D1-BC8F-3417040649F2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{18BE9BDF-8F4A-4C27-AF97-939C4F6D893E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dist", "dist", "{749A24AC-9E84-4BCE-970E-A3C48595F11D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "typescript", "typescript", "{7A4C8D92-49CB-45EF-BEA6-34C3B87E94D9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "csharp", "csharp", "{99D17657-BB55-4C5C-94A7-E7651C90862B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +52,14 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C5B36DDC-537F-4207-AF23-431A126A4BA8} = {18BE9BDF-8F4A-4C27-AF97-939C4F6D893E}
+		{7D306995-9984-471C-850E-08DE8C0CFF86} = {18BE9BDF-8F4A-4C27-AF97-939C4F6D893E}
+		{0A688FB7-46F1-437A-8398-71654DE1D2BA} = {18BE9BDF-8F4A-4C27-AF97-939C4F6D893E}
+		{95B50F2E-9507-44D1-BC8F-3417040649F2} = {18BE9BDF-8F4A-4C27-AF97-939C4F6D893E}
+		{7A4C8D92-49CB-45EF-BEA6-34C3B87E94D9} = {749A24AC-9E84-4BCE-970E-A3C48595F11D}
+		{99D17657-BB55-4C5C-94A7-E7651C90862B} = {749A24AC-9E84-4BCE-970E-A3C48595F11D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AEFD088C-C03A-4D42-B573-1BCAB3E78F56}
