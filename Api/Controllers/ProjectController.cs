@@ -65,7 +65,7 @@ namespace Api.Controllers
         {
            var response = await Mediator.Send(new GetProjectsQuery());
 
-            return Ok();
+            return Ok(response);
         }
     }
 }

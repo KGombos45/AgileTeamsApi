@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.Common.Models
 {
-    public class ApplicationUserAuth
+    public class ApplicationSettings
     {
         public string JWT_Token { get; set; }
         public string Client_URI { get; set; }

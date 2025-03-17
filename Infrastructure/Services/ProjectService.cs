@@ -71,14 +71,7 @@ namespace Infrastructure.Services
         }
         public async Task<List<Project>> GetProjects()
         {
-            var projects = await _context.Projects
-                .Include(p => p.WorkItems).ThenInclude(w => w.Tickets)
-                .Include(p => p.WorkItems).ThenInclude(w => w.WorkItemStatus)
-                .Include(p => p.WorkItems).ThenInclude(w => w.WorkItemOwner)
-                .Include(p => p.WorkItems).ThenInclude(w => w.Comments)
-                .Include(p => p.WorkItems).ThenInclude(w => w.WorkItemType)
-                .Include(p => p.WorkItems).ThenInclude(w => w.Project)
-                .Include(p => p.WorkItems).ThenInclude(w => w.WorkItemPriority).ToListAsync();
+            var projects = await _context.Projects.ToListAsync();
 
             return projects;
         }

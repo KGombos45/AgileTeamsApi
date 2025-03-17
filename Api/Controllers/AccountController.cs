@@ -23,7 +23,7 @@ namespace Api.Controllers
     {
         [HttpPost]
         [Route("Register")]
-        public async Task<ActionResult<IdentityResult>> Register([FromBody] ApplicationUser request)
+        public async Task<ActionResult<IdentityResult>> Register([FromBody] UserRegistrationDto request)
         {
             var command = new RegisterCommand
             {

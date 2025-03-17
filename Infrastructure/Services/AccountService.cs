@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.Services.Users;
 
@@ -20,33 +21,26 @@ namespace Infrastructure.Services
     {
         private UserManager<ApplicationUser> _userManager;
         private readonly AgileTeamsContext _agileTeamsContext;
-        private readonly ApplicationUserAuth _applicationUserAuth;
+        private readonly ApplicationSettings _applicationSettings;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
 
-        public AccountService(UserManager<ApplicationUser> userManager, AgileTeamsContext agileTeamsContext, ApplicationUserAuth applicationUserAuth, IHttpContextAccessor httpContextAccessor)
+        public AccountService(UserManager<ApplicationUser> userManager, AgileTeamsContext agileTeamsContext, IOptions<ApplicationSettings> applicationSettings, IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _agileTeamsContext = agileTeamsContext;
-            _applicationUserAuth = applicationUserAuth;
+            _applicationSettings = applicationSettings.Value;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<IdentityResult> Register(ApplicationUser user)
+        public async Task<IdentityResult> Register(UserRegistrationDto user)
         {
             user.Role = "Default";
 
-            try
-            {
-                var result = await _userManager.CreateAsync(user);
-                await _userManager.AddToRoleAsync(user, user.Role);
-                return result;
+            var result = await _userManager.CreateAsync(user, user.Password);
+            await _userManager.AddToRoleAsync(user, user.Role);
 
-            }
-            catch (Exception ex)
-            {
-                throw new UnauthorizedAccessException();
-            }
+            return result;
         }
 
         public async Task<string> Login(string username, string password)
@@ -61,7 +55,7 @@ namespace Infrastructure.Services
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, password);
             var roles = await _userManager.GetRolesAsync(user);
 
-            if (isPasswordValid && roles.Any())
+            if (isPasswordValid)
             {
                 var userContextExists = await ContextHasUser(user.Id);
                 IdentityOptions _options = new IdentityOptions();
@@ -72,15 +66,23 @@ namespace Infrastructure.Services
                     await _agileTeamsContext.SaveChangesAsync();
                 }
 
+                var userRole = roles.FirstOrDefault();
+                if (string.IsNullOrEmpty(userRole))
+                {
+                    throw new InvalidOperationException("User does not have any roles assigned.");
+                }
+
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
-                    Subject = new ClaimsIdentity(new Claim[]
+                    Subject = new ClaimsIdentity(new[]
                     {
-                        new Claim("UserID",user.Id.ToString()),
-                        new Claim(_options.ClaimsIdentity.RoleClaimType, roles.FirstOrDefault())
+                        new Claim("UserID", user.Id.ToString()),
+                        new Claim(_options.ClaimsIdentity.RoleClaimType, userRole)
                     }),
                     Expires = DateTime.UtcNow.AddMinutes(20),
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_applicationUserAuth.JWT_Token)), SecurityAlgorithms.HmacSha256Signature)
+                    SigningCredentials = new SigningCredentials(
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_applicationSettings.JWT_Token)),
+                        SecurityAlgorithms.HmacSha256Signature)
                 };
 
                 var tokenHandler = new JwtSecurityTokenHandler();

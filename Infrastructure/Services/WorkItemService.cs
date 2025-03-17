@@ -129,16 +129,7 @@ namespace Infrastructure.Services
         }
         public async Task<List<WorkItem>> GetUserWorkItems(string userId)
         {
-            var workItems = await _context.WorkItems
-                .Include(w => w.Project)
-                .Include(w => w.WorkItemStatus)
-                .Include(w => w.WorkItemType)
-                .Include(w => w.WorkItemOwner)
-                .Include(w => w.WorkItemPriority)
-                .Include(w => w.Comments)
-                .Include(w => w.Tickets).ThenInclude(t => t.TicketOwner)
-                .Include(w => w.Tickets).ThenInclude(t => t.TicketStatus)
-                .Where(w => w.WorkItemOwnerID.Equals(userId)).ToListAsync();
+            var workItems = await _context.WorkItems.Where(w => w.WorkItemOwnerID.Equals(userId)).ToListAsync();
 
             return workItems;
         }
