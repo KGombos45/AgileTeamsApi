@@ -12,7 +12,7 @@ namespace Application.Common.Interfaces
     public interface IAgileTeamsContext: IDbContext
     {
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
-        public DbSet<WorkItem> WorkItems { get; set; }
+        public DbSet<Domain.Entities.AgileTeams.WorkItem> WorkItems { get; set; }
         public DbSet<Domain.Entities.AgileTeams.Project> Projects { get; set; }
         public DbSet<WorkItemStatus> WorkItemStatuses { get; set; }
         public DbSet<WorkItemPriority> WorkItemPriorities { get; set; }
