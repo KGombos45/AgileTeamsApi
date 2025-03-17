@@ -1,7 +1,7 @@
 ﻿using Api.Common;
-using Application.Project.Commands.Create;
-using Application.Project.Commands.Delete;
-using Application.Project.Commands.Update;
+using Application.Project.Commands.CreateProject;
+using Application.Project.Commands.DeleteProject;
+using Application.Project.Commands.UpdateProject;
 using Application.Project.Queries.GetProjects;
 using Domain.Entities.AgileTeams;
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +13,10 @@ namespace Api.Controllers
     [ApiController]
     public class ProjectController : ApiControllerBase
     {
-        [HttpPost("create", Name = nameof(Create))]
-        public async Task<ActionResult> Create([FromBody] Project project)
+        [HttpPost("create", Name = nameof(CreateProject))]
+        public async Task<ActionResult> CreateProject([FromBody] Project project)
         {
-            var command = new CreateCommand
+            var command = new CreateProjectCommand
             {
                 Project = project
             };
@@ -27,10 +27,10 @@ namespace Api.Controllers
         }
 
 
-        [HttpPut("update", Name = nameof(Update))]
-        public async Task<ActionResult> Update([FromBody] Project project)
+        [HttpPut("update", Name = nameof(UpdateProject))]
+        public async Task<ActionResult> UpdateProject([FromBody] Project project)
         {
-            var command = new UpdateCommand
+            var command = new UpdateProjectCommand
             {
                 Project = project
             };
@@ -40,10 +40,10 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPost("{projectId}delete", Name = nameof(Delete))]
-        public async Task<ActionResult> Delete([FromRoute] string projectId)
+        [HttpPost("{projectId}delete", Name = nameof(DeleteProject))]
+        public async Task<ActionResult> DeleteProject([FromRoute] string projectId)
         {
-            var command = new DeleteCommand
+            var command = new DeleteProjectCommand
             {
                 ProjectId = projectId
             };

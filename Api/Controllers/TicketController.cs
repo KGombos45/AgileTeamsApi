@@ -1,13 +1,13 @@
 ﻿using Api.Common;
-using Application.Ticket.Commands.Create;
-using Application.Ticket.Commands.Delete;
-using Application.Ticket.Commands.Update;
-using Application.Ticket.Queries.GetStatuses;
+using Application.Ticket.Commands.CreateTicket;
+using Application.Ticket.Commands.DeleteTicket;
+using Application.Ticket.Commands.UpdateTicket;
+using Application.Ticket.Queries.GetTicketStatuses;
 using Application.Ticket.Queries.GetTicketOwnerCount;
 using Application.Ticket.Queries.GetTickets;
 using Application.Ticket.Queries.GetTicketStatusCount;
 using Application.Ticket.Queries.GetTicketTypeCount;
-using Application.Ticket.Queries.GetTypes;
+using Application.Ticket.Queries.GetTicketTypes;
 using Application.Ticket.Queries.GetUserTickets;
 using Domain.Entities.AgileTeams;
 using Microsoft.AspNetCore.Mvc;
@@ -18,10 +18,10 @@ namespace Api.Controllers
     [ApiController]
     public class TicketController : ApiControllerBase
     {
-        [HttpPost("create", Name = nameof(Create))]
-        public async Task<ActionResult> Create([FromBody] Ticket ticket)
+        [HttpPost("create", Name = nameof(CreateTicket))]
+        public async Task<ActionResult> CreateTicket([FromBody] Ticket ticket)
         {
-            var command = new CreateCommand
+            var command = new CreateTicketCommand
             {
                 Ticket = ticket
             };
@@ -31,10 +31,10 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPut("update", Name = nameof(Update))]
-        public async Task<ActionResult> Update([FromBody] Ticket ticket)
+        [HttpPut("update", Name = nameof(UpdateTicket))]
+        public async Task<ActionResult> UpdateTicket([FromBody] Ticket ticket)
         {
-            var command = new UpdateCommand
+            var command = new UpdateTicketCommand
             {
                 Ticket = ticket
             };
@@ -44,10 +44,10 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPost("{ticketId}/delete", Name = nameof(Delete))]
-        public async Task<ActionResult> Delete([FromRoute] string ticketId)
+        [HttpPost("{ticketId}/delete", Name = nameof(DeleteTicket))]
+        public async Task<ActionResult> DeleteTicket([FromRoute] string ticketId)
         {
-            var command = new DeleteCommand
+            var command = new DeleteTicketCommand
             {
                 TicketId = ticketId
             };
@@ -57,18 +57,18 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpGet("statuses", Name = nameof(GetStatuses))]
-        public async Task<ActionResult<List<TicketStatus>>> GetStatuses()
+        [HttpGet("statuses", Name = nameof(GetTicketStatuses))]
+        public async Task<ActionResult<List<TicketStatus>>> GetTicketStatuses()
         {
-            var response = await Mediator.Send(new GetStatusesQuery());
+            var response = await Mediator.Send(new GetTicketStatusesQuery());
 
             return Ok(response);
         }
 
-        [HttpGet("types", Name = nameof(GetTypes))]
-        public async Task<ActionResult<List<TicketType>>> GetTypes()
+        [HttpGet("types", Name = nameof(GetTicketTypes))]
+        public async Task<ActionResult<List<TicketType>>> GetTicketTypes()
         {
-            var response = await Mediator.Send(new GetTypesQuery());
+            var response = await Mediator.Send(new GetTicketTypesQuery());
 
             return Ok(response);
         }
@@ -105,7 +105,7 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet("{userId}/tickets", Name = nameof(GetTickets))]
+        [HttpGet("{userId}/tickets", Name = nameof(GetUserTickets))]
         public async Task<ActionResult<List<Ticket>>> GetUserTickets([FromRoute] string userId)
         {
             var query = new GetUserTicketsQuery

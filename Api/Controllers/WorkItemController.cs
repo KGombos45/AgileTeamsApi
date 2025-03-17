@@ -1,16 +1,16 @@
 ﻿using Api.Common;
-using Application.Workitem.Queries.GetStatuses;
-using Application.WorkItem.Commands.Create;
+using Application.Workitem.Queries.GetWorkItemStatuses;
 using Application.WorkItem.Commands.CreateComment;
-using Application.WorkItem.Commands.Delete;
-using Application.WorkItem.Commands.Update;
+using Application.WorkItem.Commands.CreateWorkItem;
+using Application.WorkItem.Commands.DeleteWorkItem;
+using Application.WorkItem.Commands.UpdateWorkItem;
 using Application.WorkItem.Queries.GetPriorities;
-using Application.WorkItem.Queries.GetTypes;
 using Application.WorkItem.Queries.GetUserWorkItems;
 using Application.WorkItem.Queries.GetWorkItemOwnerCount;
 using Application.WorkItem.Queries.GetWorkItems;
 using Application.WorkItem.Queries.GetWorkItemStatusCount;
 using Application.WorkItem.Queries.GetWorkItemTypeCount;
+using Application.WorkItem.Queries.GetWorkItemTypes;
 using Domain.Entities.AgileTeams;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,10 +20,10 @@ namespace Api.Controllers
     [ApiController]
     public class WorkItemController : ApiControllerBase
     {
-        [HttpPost("create", Name = nameof(Create))]
-        public async Task<ActionResult> Create([FromBody] WorkItem workItem)
+        [HttpPost("create", Name = nameof(CreateWorkItem))]
+        public async Task<ActionResult> CreateWorkItem([FromBody] WorkItem workItem)
         {
-            var command = new CreateCommand
+            var command = new CreateWorkItemCommand
             {
                 WorkItem = workItem
             };
@@ -33,10 +33,10 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPut("update", Name = nameof(Update))]
-        public async Task<ActionResult> Update([FromBody] WorkItem workItem)
+        [HttpPut("update", Name = nameof(UpdateWorkItem))]
+        public async Task<ActionResult> UpdateWorkItem([FromBody] WorkItem workItem)
         {
-            var command = new UpdateCommand
+            var command = new UpdateWorkItemCommand
             {
                 WorkItem = workItem
             };
@@ -46,10 +46,10 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpPost("{workItemId}/delete", Name = nameof(Delete))]
-        public async Task<ActionResult> Delete([FromRoute] string workItemId)
+        [HttpPost("{workItemId}/delete", Name = nameof(DeleteWorkItem))]
+        public async Task<ActionResult> DeleteWorkItem([FromRoute] string workItemId)
         {
-            var command = new DeleteCommand
+            var command = new DeleteWorkItemCommand
             {
                 WorkItemId = workItemId
             };
@@ -72,18 +72,18 @@ namespace Api.Controllers
             return Ok();
         }
 
-        [HttpGet("statuses", Name = nameof(GetStatuses))]
-        public async Task<ActionResult<List<WorkItemStatus>>> GetStatuses()
+        [HttpGet("statuses", Name = nameof(GetWorkItemStatuses))]
+        public async Task<ActionResult<List<WorkItemStatus>>> GetWorkItemStatuses()
         {
-            var response = await Mediator.Send(new GetStatusesQuery());
+            var response = await Mediator.Send(new GetWorkItemStatusesQuery());
 
             return Ok(response);
         }
 
-        [HttpGet("types", Name = nameof(GetTypes))]
-        public async Task<ActionResult<List<WorkItemType>>> GetTypes()
+        [HttpGet("types", Name = nameof(GetWorkItemTypes))]
+        public async Task<ActionResult<List<WorkItemType>>> GetWorkItemTypes()
         {
-            var response = await Mediator.Send(new GetTypesQuery());
+            var response = await Mediator.Send(new GetWorkItemTypesQuery());
 
             return Ok(response);
         }
