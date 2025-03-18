@@ -3,6 +3,7 @@ using System.Text;
 using Application.Common.Interfaces;
 using Application.Common.Models;
 using Domain.Entities.AgileTeams;
+using Infrastructure.Mappings;
 using Infrastructure.Persistence;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

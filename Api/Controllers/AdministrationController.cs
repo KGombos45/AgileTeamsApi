@@ -51,9 +51,9 @@ public class AdministrationController : ApiControllerBase
         return Ok();
     }
 
-    [HttpGet("roles")]
+    [HttpGet("roles", Name = nameof(GetRoles))]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetRoles()
+    public async Task<ActionResult<List<string>>> GetRoles()
     {
         var response = await Mediator.Send(new GetRolesQuery());
 

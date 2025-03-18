@@ -1,4 +1,5 @@
 ﻿using Application.Common.Interfaces;
+using Application.Common.Models;
 using Domain.Entities.AgileTeams;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
@@ -33,14 +34,16 @@ namespace Infrastructure.Services
         public async Task Delete(string workItemId)
         {
             var workItem = await _context.WorkItems.FindAsync(workItemId);
+            var tickets = await _context.Tickets.Where(t => t.TicketWorkItemID == workItemId).ToListAsync();
+            var comments = await _context.WorkItemComments.Where(c => c.CommentWorkItemID == workItemId).ToListAsync();
 
             if (workItem == null)
             {
                 throw new DirectoryNotFoundException();
             }
 
-            _context.WorkItemComments.RemoveRange(workItem.Comments);
-            _context.Tickets.RemoveRange(workItem.Tickets);
+            _context.WorkItemComments.RemoveRange(comments);
+            _context.Tickets.RemoveRange(tickets);
             _context.WorkItems.Remove(workItem);
             await _context.SaveChangesAsync();
 
@@ -85,47 +88,44 @@ namespace Infrastructure.Services
 
             return workItems;
         }
-        public async Task<List<Array>> GetWorkItemStatusCount() {
+        public async Task<List<CountResponse>> GetWorkItemStatusCount() {
 
-            var counts = await _context.WorkItems.Select(x => x.WorkItemStatus).GroupBy(i => i.StatusName).ToDictionaryAsync(g => g.Key, g => g.Count());
-            var list = new List<Array>();
+            var workItems = await _context.WorkItems
+                .Select(x => x.WorkItemStatus)
+                .ToListAsync();
 
-            foreach (var count in counts)
-            {
-                object[] countString = new object[] { count.Key, count.Value };
+            var counts = workItems
+                .GroupBy(i => i.StatusName)
+                .Select(g => new CountResponse { Name = g.Key, Count = g.Count() })
+                .ToList();
 
-                list.Add(countString.ToArray());
-            }
-
-            return list;
+            return counts;
         }
-        public async Task<List<Array>> GetWorkItemPriorityCount()
+        public async Task<List<CountResponse>> GetWorkItemPriorityCount()
         {
-            var counts = await _context.WorkItems.Select(x => x.WorkItemPriority).GroupBy(i => i.PriorityName).ToDictionaryAsync(g => g.Key, g => g.Count());
-            var list = new List<Array>();
+            var workItems = await _context.WorkItems
+                .Select(x => x.WorkItemPriority)
+                .ToListAsync();
 
-            foreach (var count in counts)
-            {
-                object[] countString = new object[] { count.Key, count.Value };
+            var counts = workItems
+                .GroupBy(i => i.PriorityName)
+                .Select(g => new CountResponse { Name = g.Key, Count = g.Count() })
+                .ToList();
 
-                list.Add(countString.ToArray());
-            }
-
-            return list;
+            return counts;
         }
-        public async Task<List<Array>> GetWorkItemOwnerCount()
+        public async Task<List<CountResponse>> GetWorkItemOwnerCount()
         {
-            var counts = await _context.WorkItems.Select(x => x.WorkItemOwner).GroupBy(i => i.UserName).ToDictionaryAsync(g => g.Key, g => g.Count());
-            var list = new List<Array>();
+            var workItems = await _context.WorkItems
+                .Select(x => x.WorkItemOwner)
+                .ToListAsync();
 
-            foreach (var count in counts)
-            {
-                object[] countString = new object[] { count.Key, count.Value };
+            var counts = workItems
+                .GroupBy(i => i.UserName)
+                .Select(g => new CountResponse { Name = g.Key, Count = g.Count() })
+                .ToList();
 
-                list.Add(countString.ToArray());
-            }
-
-            return list;
+            return counts;
         }
         public async Task<List<WorkItem>> GetUserWorkItems(string userId)
         {

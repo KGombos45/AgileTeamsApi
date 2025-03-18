@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Application.Ticket.Queries.GetTicketStatusCount
 {
-    public class GetTicketStatusCountQuery : IRequest<List<Array>>
+    public class GetTicketStatusCountQuery : IRequest<List<CountResponse>>
     {
     }
 }

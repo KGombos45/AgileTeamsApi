@@ -11,6 +11,7 @@ using Application.Ticket.Queries.GetTicketTypes;
 using Application.Ticket.Queries.GetUserTickets;
 using Domain.Entities.AgileTeams;
 using Microsoft.AspNetCore.Mvc;
+using Application.Common.Models;
 
 namespace Api.Controllers
 {
@@ -74,7 +75,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("ticketStatusCount", Name = nameof(GetTicketStatusCount))]
-        public async Task<ActionResult<List<Array>>> GetTicketStatusCount()
+        public async Task<ActionResult<List<CountResponse>>> GetTicketStatusCount()
         {
             var response = await Mediator.Send(new GetTicketStatusCountQuery());
 
@@ -82,7 +83,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("ticketTypeCount", Name = nameof(GetTicketTypeCount))]
-        public async Task<ActionResult<List<Array>>> GetTicketTypeCount()
+        public async Task<ActionResult<List<CountResponse>>> GetTicketTypeCount()
         {
             var response = await Mediator.Send(new GetTicketTypeCountQuery());
 
@@ -90,7 +91,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("ticketOwnerCount", Name = nameof(GetTicketOwnerCount))]
-        public async Task<ActionResult<List<Array>>> GetTicketOwnerCount()
+        public async Task<ActionResult<List<CountResponse>>> GetTicketOwnerCount()
         {
             var response = await Mediator.Send(new GetTicketOwnerCountQuery());
 

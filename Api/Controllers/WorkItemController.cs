@@ -1,4 +1,5 @@
 ﻿using Api.Common;
+using Application.Common.Models;
 using Application.Workitem.Queries.GetWorkItemStatuses;
 using Application.WorkItem.Commands.CreateComment;
 using Application.WorkItem.Commands.CreateWorkItem;
@@ -106,7 +107,7 @@ namespace Api.Controllers
 
 
         [HttpGet("workItemStatusCount", Name = nameof(GetWorkItemStatusCount))]
-        public async Task<ActionResult<List<Array>>> GetWorkItemStatusCount()
+        public async Task<ActionResult<List<CountResponse>>> GetWorkItemStatusCount()
         {
             var response = await Mediator.Send(new GetWorkItemStatusCountQuery());
 
@@ -115,7 +116,7 @@ namespace Api.Controllers
 
 
         [HttpGet("workItemPriorityCount", Name = nameof(GetWorkItemPriorityCount))]
-        public async Task<ActionResult<List<Array>>> GetWorkItemPriorityCount()
+        public async Task<ActionResult<List<CountResponse>>> GetWorkItemPriorityCount()
         {
             var response = await Mediator.Send(new GetWorkItemPriorityCountQuery());
 
@@ -123,7 +124,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("workItemOwnerCount", Name = nameof(GetWorkItemOwnerCount))]
-        public async Task<ActionResult<List<Array>>> GetWorkItemOwnerCount()
+        public async Task<ActionResult<List<CountResponse>>> GetWorkItemOwnerCount()
         {
             var response = await Mediator.Send(new GetWorkItemOwnerCountQuery());
 

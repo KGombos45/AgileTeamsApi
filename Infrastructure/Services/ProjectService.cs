@@ -48,20 +48,22 @@ namespace Infrastructure.Services
         public async Task DeleteProject(string projectId)
         {
             var project = await _context.Projects.FindAsync(projectId);
+            var workItems = await _context.WorkItems.Where(i => i.WorkItemProjectID == projectId).ToListAsync();
 
             if (project == null)
             {
                 throw new DirectoryNotFoundException();
             }
 
-            if (project.WorkItems.Any())
+            if (workItems.Any())
             {
-                foreach (var workItem in project.WorkItems)
+                foreach (var workItem in workItems)
                 {
-                    _context.Tickets.RemoveRange(workItem.Tickets);
+                    var tickets = await _context.Tickets.Where(t => t.TicketWorkItemID == workItem.WorkItemID).ToListAsync();
+                    _context.Tickets.RemoveRange(tickets);
                 }
 
-                _context.WorkItems.RemoveRange(project.WorkItems);
+                _context.WorkItems.RemoveRange(workItems);
             }
 
             _context.Projects.Remove(project);
@@ -71,7 +73,14 @@ namespace Infrastructure.Services
         }
         public async Task<List<Project>> GetProjects()
         {
-            var projects = await _context.Projects.ToListAsync();
+            var projects = await _context.Projects
+                .Include(p => p.WorkItems).ThenInclude(w => w.Tickets)
+                .Include(p => p.WorkItems).ThenInclude(w => w.WorkItemStatus)
+                .Include(p => p.WorkItems).ThenInclude(w => w.WorkItemOwner)
+                .Include(p => p.WorkItems).ThenInclude(w => w.Comments)
+                .Include(p => p.WorkItems).ThenInclude(w => w.WorkItemType)
+                .Include(p => p.WorkItems).ThenInclude(w => w.WorkItemPriority)
+                .ToListAsync();
 
             return projects;
         }

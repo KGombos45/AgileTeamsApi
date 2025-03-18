@@ -1,5 +1,6 @@
 ﻿
 using Application.Common.Interfaces;
+using Application.Common.Models;
 using Domain.Entities.AgileTeams;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
@@ -76,51 +77,45 @@ namespace Infrastructure.Services
 
         }
 
-        public async Task<List<Array>> GetTicketStatusCount()
+        public async Task<List<CountResponse>> GetTicketStatusCount()
         {
-            var counts = await _context.Tickets.Select(x => x.TicketStatus).GroupBy(i => i.StatusName).ToDictionaryAsync(g => g.Key, g => g.Count());
+            var tickets = await _context.Tickets
+                .Select(x => x.TicketStatus)
+                .ToListAsync();
 
-            var list = new List<Array>();
+            var counts = tickets
+                .GroupBy(i => i.StatusName)
+                .Select(g => new CountResponse { Name = g.Key, Count = g.Count() })
+                .ToList();
 
-            foreach (var count in counts)
-            {
-                object[] countString = new object[] { count.Key, count.Value };
-
-                list.Add(countString.ToArray());
-            }
-
-            return list;
+            return counts;
         }
 
-        public async Task<List<Array>> GetTicketTypeCount()
+        public async Task<List<CountResponse>> GetTicketTypeCount()
         {
-            var counts = await _context.Tickets.Select(x => x.TicketType).GroupBy(i => i.TypeName).ToDictionaryAsync(g => g.Key, g => g.Count());
+            var tickets = await _context.Tickets
+                .Select(x => x.TicketType)
+                .ToListAsync();
 
-            var list = new List<Array>();
+            var counts = tickets
+                .GroupBy(i => i.TypeName)
+                .Select(g => new CountResponse { Name = g.Key, Count = g.Count() })
+                .ToList();
 
-            foreach (var count in counts)
-            {
-                object[] countString = new object[] { count.Key, count.Value };
-
-                list.Add(countString.ToArray());
-            }
-
-            return list;
+            return counts;
         }
-        public async Task<List<Array>> GetTicketOwnerCount()
+        public async Task<List<CountResponse>> GetTicketOwnerCount()
         {
-            var counts = await _context.Tickets.Select(x => x.TicketOwner).GroupBy(i => i.UserName).ToDictionaryAsync(g => g.Key, g => g.Count());
+            var tickets = await _context.Tickets
+                .Select(x => x.TicketOwner)
+                .ToListAsync();
 
-            var list = new List<Array>();
+            var counts = tickets
+                .GroupBy(i => i.UserName)
+                .Select(g => new CountResponse { Name = g.Key, Count = g.Count() })
+                .ToList();
 
-            foreach (var count in counts)
-            {
-                object[] countString = new object[] { count.Key, count.Value };
-
-                list.Add(countString.ToArray());
-            }
-
-            return list;
+            return counts;
         }
         public async Task<List<Ticket>> GetTickets()
         {

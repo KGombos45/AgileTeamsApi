@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Application.Ticket.Queries.GetTicketOwnerCount
 {
-    public class GetTicketOwnerCountQuery : IRequest<List<Array>>
+    public class GetTicketOwnerCountQuery : IRequest<List<CountResponse>>
     {
     }
 }

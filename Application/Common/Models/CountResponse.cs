@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Application.Common.Models
 {
-    public class TicketTypeCount
+    public class CountResponse
     {
-        public string TicketType { get; set; }
+        public string Name { get; set; }
         public int Count { get; set; }
     }
 }

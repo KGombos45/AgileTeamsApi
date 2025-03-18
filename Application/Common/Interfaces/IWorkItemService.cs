@@ -1,4 +1,5 @@
 ﻿
+using Application.Common.Models;
 using Domain.Entities.AgileTeams;
 
 
@@ -15,9 +16,9 @@ namespace Application.Common.Interfaces
         public Task<List<WorkItemType>> GetTypes();
         public Task<List<WorkItemPriority>> GetPriorities();
         public Task<List<WorkItem>> GetWorkItems();
-        public Task<List<Array>> GetWorkItemStatusCount();
-        public Task<List<Array>> GetWorkItemPriorityCount();
-        public Task<List<Array>> GetWorkItemOwnerCount();
+        public Task<List<CountResponse>> GetWorkItemStatusCount();
+        public Task<List<CountResponse>> GetWorkItemPriorityCount();
+        public Task<List<CountResponse>> GetWorkItemOwnerCount();
         public Task<List<WorkItem>> GetUserWorkItems(string userId);
     }
 }

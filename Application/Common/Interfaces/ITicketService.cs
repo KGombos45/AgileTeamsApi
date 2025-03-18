@@ -19,8 +19,8 @@ namespace Application.Common.Interfaces
         public Task<List<Ticket>> GetUserTickets(string userId);
         public Task<List<TicketStatus>> GetStatuses();
         public Task<List<TicketType>> GetTypes();
-        public Task<List<Array>> GetTicketStatusCount();
-        public Task<List<Array>> GetTicketTypeCount();
-        public Task<List<Array>> GetTicketOwnerCount();
+        public Task<List<CountResponse>> GetTicketStatusCount();
+        public Task<List<CountResponse>> GetTicketTypeCount();
+        public Task<List<CountResponse>> GetTicketOwnerCount();
     }
 }

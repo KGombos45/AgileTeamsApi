@@ -82,6 +82,8 @@ namespace Infrastructure.Services
 
         public async Task<List<string>> GetRoles()
         {
+            var roles = await _roleManager.Roles.Select(role => role.Name).ToListAsync();
+
             return await _roleManager.Roles.Select(role => role.Name).ToListAsync();
         }
 
