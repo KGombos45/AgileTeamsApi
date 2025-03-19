@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace Domain.Entities.AgileTeams
 {
@@ -31,7 +32,7 @@ namespace Domain.Entities.AgileTeams
         public string CreatedBy { get; set; }
         public DateTime? ModifiedOn { get; set; }
         public string ModifiedBy { get; set; }
-        public virtual IEnumerable<WorkItemComment> Comments { get; set; }
-        public virtual IEnumerable<Ticket> Tickets { get; set; }
+        public ICollection<WorkItemComment> Comments { get; set; }
+        public ICollection<Ticket> Tickets { get; set; }
     }
 }

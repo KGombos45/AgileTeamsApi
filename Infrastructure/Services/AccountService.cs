@@ -155,15 +155,11 @@ namespace Infrastructure.Services
                 throw new DirectoryNotFoundException();
             }
 
-            applicationUser.FirstName = user.FirstName;
-            applicationUser.LastName = user.LastName;
-            applicationUser.Email = user.Email;
-            applicationUser.Role = user.Role;
+            _mapper.Map(user, applicationUser);
 
             try
             {
                 var result = await _userManager.UpdateAsync(applicationUser);
-
                 return result;
 
             }

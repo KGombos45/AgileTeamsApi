@@ -14,6 +14,10 @@ namespace Infrastructure.Mappings
             CreateMap<Ticket, WorkItemTicketDto>();
             CreateMap<Project, WorkItemProjectDto>();
             CreateMap<WorkItemComment, WorkItemCommentDto>();
+
+            CreateMap<UpdateWorkItemDto, WorkItem>()
+                .ForMember(dest => dest.ModifiedOn, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }

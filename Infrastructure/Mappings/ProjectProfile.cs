@@ -16,6 +16,8 @@ namespace Infrastructure.Mappings
             CreateMap<ProjectDto, Project>();
             CreateMap<Project, ProjectDto>();
             CreateMap<WorkItem, ProjectWorkItemDto>();
+            CreateMap<UpdateProjectDto, Project>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }

@@ -44,8 +44,7 @@ namespace Infrastructure.Services
                 throw new DirectoryNotFoundException();
             }
 
-            existingProject.ProjectName = project.ProjectName ?? existingProject.ProjectName;
-            existingProject.Description = project.Description ?? existingProject.Description;
+            _mapper.Map(project, existingProject);
 
             _context.Projects.Update(existingProject);
             await _context.SaveChangesAsync();

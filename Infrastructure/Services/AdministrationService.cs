@@ -30,7 +30,7 @@ namespace Infrastructure.Services
 
         public async Task<List<ApplicationUserDto>> GetUserProfiles()
         {
-            var usersList = await _agileTeamsContext.ApplicationUsers.ToListAsync();
+            var usersList = await _userManager.Users.ToListAsync();
 
             return _mapper.Map<List<ApplicationUserDto>>(usersList);
         }
@@ -52,7 +52,6 @@ namespace Infrastructure.Services
             }
 
             var currentRoles = await _userManager.GetRolesAsync(user);
-
             var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
 
             if (!removeResult.Succeeded)
@@ -61,7 +60,13 @@ namespace Infrastructure.Services
             }
 
             var result = await _userManager.AddToRoleAsync(user, role.GetDescription());
-         
+
+            if (result.Succeeded)
+            {
+                user.Role = role.GetDescription();
+                await _userManager.UpdateAsync(user);
+            }
+
             return result;
         }
 

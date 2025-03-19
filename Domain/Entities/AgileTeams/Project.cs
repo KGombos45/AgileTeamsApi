@@ -15,6 +15,6 @@ namespace Domain.Entities.AgileTeams
         public string Description { get; set; }
         public DateTime CreatedOn { get; set; }
         public string CreatedBy { get; set; }
-        public virtual IEnumerable<WorkItem> WorkItems { get; set; }
+        public ICollection<WorkItem> WorkItems { get; set; }
     }
 }

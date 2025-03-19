@@ -17,7 +17,7 @@ namespace Application.Project.Commands.UpdateProject
         }
         public async Task<Unit> Handle(UpdateProjectCommand request, CancellationToken cancellationToken)
         {
-            await _projectService.CreateProject(request.Project);
+            await _projectService.UpdateProject(request.Project);
 
             return Unit.Value;
         }
