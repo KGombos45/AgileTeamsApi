@@ -29,7 +29,7 @@ namespace Api.Controllers
 
 
         [HttpPut("update", Name = nameof(UpdateProject))]
-        public async Task<ActionResult> UpdateProject([FromBody] Project project)
+        public async Task<ActionResult> UpdateProject([FromBody] UpdateProjectDto project)
         {
             var command = new UpdateProjectCommand
             {

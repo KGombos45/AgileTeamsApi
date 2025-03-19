@@ -9,7 +9,7 @@ namespace Application.Common.Interfaces
     public interface IWorkItemService
     {
         public Task Create(WorkItem workItem);
-        public Task Update(WorkItem workItem);
+        public Task Update(UpdateWorkItemDto workItem);
         public Task Delete(string workItemId);
         public Task CreateComment(CommentRequest comment);
         public Task<List<WorkItemStatus>> GetStatuses();

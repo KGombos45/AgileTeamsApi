@@ -36,7 +36,7 @@ namespace Api.Controllers
         }
 
         [HttpPut("update", Name = nameof(UpdateWorkItem))]
-        public async Task<ActionResult> UpdateWorkItem([FromBody] WorkItem workItem)
+        public async Task<ActionResult> UpdateWorkItem([FromBody] UpdateWorkItemDto workItem)
         {
             var command = new UpdateWorkItemCommand
             {

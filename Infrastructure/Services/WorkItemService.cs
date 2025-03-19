@@ -34,12 +34,38 @@ namespace Infrastructure.Services
 
             return;
         }
-        public async Task Update(WorkItem workItem)
+        public async Task Update(UpdateWorkItemDto workItem)
         {
-            _context.WorkItems.Update(workItem);
-            await _context.SaveChangesAsync();
+            var existingWorkItem = await _context.WorkItems.FindAsync(workItem.WorkItemID);
 
-            return;
+            var updateUser = await _accountService.GetLoggedInUser();
+            var workItemOwner = await _context.Users.FindAsync(workItem.WorkItemOwnerID);
+
+            if (workItem == null || existingWorkItem == null || updateUser == null)
+            {
+                throw new InvalidOperationException("Work item not found.");
+            }
+
+            existingWorkItem.WorkItemName = workItem.WorkItemName ?? existingWorkItem.WorkItemName;
+            existingWorkItem.WorkItemDescription = workItem.WorkItemDescription ?? existingWorkItem.WorkItemDescription;
+            existingWorkItem.WorkItemProjectID = workItem.WorkItemProjectID ?? existingWorkItem.WorkItemProjectID;
+            existingWorkItem.WorkItemStatusID = workItem.WorkItemStatusID != 0 ? workItem.WorkItemStatusID : existingWorkItem.WorkItemStatusID;
+            existingWorkItem.WorkItemStatus = workItem.WorkItemStatus ?? existingWorkItem.WorkItemStatus;
+            existingWorkItem.WorkItemTypeID = workItem.WorkItemTypeID != 0 ? workItem.WorkItemTypeID : existingWorkItem.WorkItemTypeID;
+            existingWorkItem.WorkItemType = workItem.WorkItemType ?? existingWorkItem.WorkItemType;
+            existingWorkItem.WorkItemPriorityID = workItem.WorkItemPriorityID != 0 ? workItem.WorkItemPriorityID : existingWorkItem.WorkItemPriorityID;
+            existingWorkItem.WorkItemPriority = workItem.WorkItemPriority ?? existingWorkItem.WorkItemPriority;
+            existingWorkItem.WorkItemOwnerID = workItem.WorkItemOwnerID ?? existingWorkItem.WorkItemOwnerID;
+            existingWorkItem.WorkItemOwner = workItemOwner ?? existingWorkItem.WorkItemOwner;
+            existingWorkItem.StartDate = workItem.StartDate ?? existingWorkItem.StartDate;
+            existingWorkItem.TargetEndDate = workItem.TargetEndDate ?? existingWorkItem.TargetEndDate;
+            existingWorkItem.ActualEndDate = workItem.ActualEndDate ?? existingWorkItem.ActualEndDate;
+
+            existingWorkItem.ModifiedOn = DateTime.UtcNow;
+            existingWorkItem.ModifiedBy = updateUser.UserName;
+
+            _context.WorkItems.Update(existingWorkItem);
+            await _context.SaveChangesAsync();
         }
         public async Task Delete(string workItemId)
         {

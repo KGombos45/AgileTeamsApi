@@ -35,19 +35,20 @@ namespace Infrastructure.Services
             return;
         }
 
-        public async Task UpdateProject(Project project)
+        public async Task UpdateProject(UpdateProjectDto project)
         {
-            try
+            var existingProject = await _context.Projects.FindAsync(project.ProjectID);
+
+            if (existingProject == null || project == null)
             {
-                _context.Projects.Update(project);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                throw new DbUpdateConcurrencyException();
+                throw new DirectoryNotFoundException();
             }
 
-            return;
+            existingProject.ProjectName = project.ProjectName ?? existingProject.ProjectName;
+            existingProject.Description = project.Description ?? existingProject.Description;
+
+            _context.Projects.Update(existingProject);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteProject(string projectId)

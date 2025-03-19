@@ -1,9 +1,10 @@
-﻿using MediatR;
+﻿using Application.Common.Models;
+using MediatR;
 
 namespace Application.WorkItem.Commands.UpdateWorkItem
 {
     public class UpdateWorkItemCommand : IRequest<Unit>
     {
-        public Domain.Entities.AgileTeams.WorkItem WorkItem { get; set; }
+        public UpdateWorkItemDto WorkItem { get; set; }
     }
 }
