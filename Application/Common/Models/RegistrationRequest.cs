@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.Common.Models
 {
-    public class UserRegistrationDto
+    public class RegistrationRequest
     {
         public string Email { get; set; }
         public string UserName { get; set; }

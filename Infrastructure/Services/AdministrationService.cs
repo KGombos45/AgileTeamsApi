@@ -1,6 +1,10 @@
 ﻿
 using Application.Common.Interfaces;
+using Application.Common.Models;
+using AutoMapper;
+using Azure.Core;
 using Domain.Entities.AgileTeams;
+using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,56 +15,53 @@ namespace Infrastructure.Services
         private UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IAgileTeamsContext _agileTeamsContext;
+        private readonly IMapper _mapper;
 
-        public AdministrationService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IAgileTeamsContext agileTeamsContext)
+        public AdministrationService(UserManager<ApplicationUser> userManager, 
+            RoleManager<IdentityRole> roleManager, 
+            IAgileTeamsContext agileTeamsContext,
+            IMapper mapper)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _agileTeamsContext = agileTeamsContext;
+            _mapper = mapper;
         }
 
-        public async Task<List<ApplicationUser>> GetUserProfiles()
+        public async Task<List<ApplicationUserDto>> GetUserProfiles()
         {
             var usersList = await _agileTeamsContext.ApplicationUsers.ToListAsync();
 
-            return usersList;
+            return _mapper.Map<List<ApplicationUserDto>>(usersList);
         }
 
-        public async Task<IdentityResult> UpdateUserRole(string id, ApplicationUser applicationUser)
+        public async Task<IdentityResult> UpdateUserRole(string id, IdentityRoles role)
         {
             var user = await _userManager.FindByIdAsync(id);
-            var role = await _roleManager.FindByNameAsync(applicationUser.Role);
-            var result = new IdentityResult();
 
-            if (user == null) 
+            if (user == null)
             {
-                throw new DirectoryNotFoundException();
+                throw new DirectoryNotFoundException("User not found");
             }
 
-            var oldRoles = await _userManager.GetRolesAsync(user);
+            var roleExists = await _roleManager.RoleExistsAsync(role.GetDescription());
 
-            if (role == null || role.Name == null)
+            if (!roleExists)
             {
-                throw new DirectoryNotFoundException();
+                throw new DirectoryNotFoundException("Role does not exist");
             }
 
-            if (oldRoles != null)
-            {
-                result = await _userManager.RemoveFromRolesAsync(user, oldRoles.ToArray());
+            var currentRoles = await _userManager.GetRolesAsync(user);
 
-                _agileTeamsContext.ApplicationUsers.Update(applicationUser);
-                await _agileTeamsContext.SaveChangesAsync();
+            var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
 
-                if (result.Succeeded)
-                {
-                    result = await _userManager.AddToRoleAsync(user, role.Name);
-                }
-            }
-            else
+            if (!removeResult.Succeeded)
             {
-                result = await _userManager.AddToRoleAsync(user, role.Name);
+                return removeResult;
             }
 
+            var result = await _userManager.AddToRoleAsync(user, role.GetDescription());
+         
             return result;
         }
 

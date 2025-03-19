@@ -1,9 +1,13 @@
-﻿using Application.Common.Interfaces;
+﻿using System.Security.Claims;
+using Application.Common.Interfaces;
 using Application.Common.Models;
+using AutoMapper;
 using Domain.Entities.AgileTeams;
 using Infrastructure.Persistence;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Services.Users;
 
 namespace Infrastructure.Services
 {
@@ -11,11 +15,17 @@ namespace Infrastructure.Services
     {
         private readonly AgileTeamsContext _context;
         private UserManager<ApplicationUser> _userManager;
-
-        public WorkItemService(AgileTeamsContext context, UserManager<ApplicationUser> userManager)
+        private IAccountService _accountService;
+        private IMapper _mapper;
+        public WorkItemService(AgileTeamsContext context, 
+            UserManager<ApplicationUser> userManager, 
+            IAccountService accountService,
+            IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
+            _accountService = accountService;
+            _mapper = mapper;
         }
         public async Task Create(WorkItem workItem)
         {
@@ -34,27 +44,43 @@ namespace Infrastructure.Services
         public async Task Delete(string workItemId)
         {
             var workItem = await _context.WorkItems.FindAsync(workItemId);
-            var tickets = await _context.Tickets.Where(t => t.TicketWorkItemID == workItemId).ToListAsync();
-            var comments = await _context.WorkItemComments.Where(c => c.CommentWorkItemID == workItemId).ToListAsync();
 
             if (workItem == null)
             {
                 throw new DirectoryNotFoundException();
             }
 
-            _context.WorkItemComments.RemoveRange(comments);
-            _context.Tickets.RemoveRange(tickets);
             _context.WorkItems.Remove(workItem);
             await _context.SaveChangesAsync();
 
             return;
         }
-        public async Task CreateComment(WorkItemComment workItemComment)
+        public async Task CreateComment(CommentRequest comment)
         {
-            await _context.WorkItemComments.AddAsync(workItemComment);
-            await _context.SaveChangesAsync();
+            var user = await _accountService.GetLoggedInUser();
+            var workItem = await _context.WorkItems.FindAsync(comment.WorkItemId);
 
-            return;
+            if (user?.UserName == null)
+            {
+                throw new InvalidOperationException("User is not logged in or no associated username could be found.");
+            }
+
+            if (workItem == null)
+            {
+                throw new ArgumentException("Work item not found.", nameof(workItem));
+            }
+
+            var fullComment = new WorkItemComment
+            {
+                Comment = comment.Comment,
+                CommentWorkItemID = comment.WorkItemId,
+                SubmittedBy = user.UserName,
+                SubmittedOn = DateTime.Now,
+                WorkItem = workItem
+            };
+
+            await _context.WorkItemComments.AddAsync(fullComment);
+            await _context.SaveChangesAsync();
         }
         public async Task<List<WorkItemStatus>> GetStatuses()
         {
@@ -74,7 +100,7 @@ namespace Infrastructure.Services
 
             return priorities;
         }
-        public async Task<List<WorkItem>> GetWorkItems()
+        public async Task<List<WorkItemDto>> GetWorkItems()
         {
             var workItems = await _context.WorkItems
                 .Include(w => w.Project)
@@ -86,7 +112,7 @@ namespace Infrastructure.Services
                 .Include(w => w.Tickets).ThenInclude(t => t.TicketOwner)
                 .Include(w => w.Tickets).ThenInclude(t => t.TicketStatus).ToListAsync();
 
-            return workItems;
+            return _mapper.Map<List<WorkItemDto>>(workItems);
         }
         public async Task<List<CountResponse>> GetWorkItemStatusCount() {
 
@@ -127,11 +153,11 @@ namespace Infrastructure.Services
 
             return counts;
         }
-        public async Task<List<WorkItem>> GetUserWorkItems(string userId)
+        public async Task<List<WorkItemDto>> GetUserWorkItems(string userId)
         {
             var workItems = await _context.WorkItems.Where(w => w.WorkItemOwnerID.Equals(userId)).ToListAsync();
 
-            return workItems;
+            return _mapper.Map<List<WorkItemDto>>(workItems);
         }
     }
 }

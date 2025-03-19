@@ -12,11 +12,11 @@ namespace Application.Common.Interfaces
     using Ticket = Domain.Entities.AgileTeams.Ticket;
     public interface ITicketService
     {
-        public Task<List<Ticket>> GetTickets();
+        public Task<List<TicketDto>> GetTickets();
         public Task CreateTicket(Ticket ticket);
         public Task UpdateTicket(Ticket ticket);
         public Task DeleteTicket(string id);
-        public Task<List<Ticket>> GetUserTickets(string userId);
+        public Task<List<TicketDto>> GetUserTickets(string userId);
         public Task<List<TicketStatus>> GetStatuses();
         public Task<List<TicketType>> GetTypes();
         public Task<List<CountResponse>> GetTicketStatusCount();

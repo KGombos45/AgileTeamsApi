@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Models;
 using MediatR;
 
 namespace Application.Project.Queries.GetProjects
 {
-    public class GetProjectsQuery : IRequest<List<Domain.Entities.AgileTeams.Project>>
+    public class GetProjectsQuery : IRequest<List<ProjectDto>>
     {
 
     }

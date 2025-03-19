@@ -12,6 +12,6 @@ namespace Application.Account.Commands.Register
 {
     public class RegisterCommand : IRequest<IdentityResult>
     {
-        public UserRegistrationDto User { get; set; }
+        public RegistrationRequest User { get; set; }
     }
 }

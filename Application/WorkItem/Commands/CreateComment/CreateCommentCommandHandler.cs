@@ -12,7 +12,7 @@ namespace Application.WorkItem.Commands.CreateComment
         }
         public async Task<Unit> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
         {
-            await _workItemService.CreateComment(request.WorkItemComment);
+            await _workItemService.CreateComment(request.Comment);
 
             return Unit.Value;
         }

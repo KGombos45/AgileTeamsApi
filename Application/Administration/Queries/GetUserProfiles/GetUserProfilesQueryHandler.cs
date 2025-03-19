@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Interfaces;
+using Application.Common.Models;
 using Domain.Entities.AgileTeams;
 using MediatR;
 
 namespace Application.Administration.Queries.GetUserProfiles
 {
-    public class GetUserProfilesQueryHandler : IRequestHandler<GetUserProfilesQuery, List<ApplicationUser>>
+    public class GetUserProfilesQueryHandler : IRequestHandler<GetUserProfilesQuery, List<ApplicationUserDto>>
     {
         private readonly IAdministrationService _administrationService;
 
@@ -18,7 +19,7 @@ namespace Application.Administration.Queries.GetUserProfiles
             _administrationService = administrationService;
         }
 
-        public async Task<List<ApplicationUser>> Handle(GetUserProfilesQuery request, CancellationToken cancellationToken)
+        public async Task<List<ApplicationUserDto>> Handle(GetUserProfilesQuery request, CancellationToken cancellationToken)
         {
             var users = await _administrationService.GetUserProfiles();
 

@@ -1,4 +1,5 @@
 ﻿using Api.Common;
+using Application.Common.Models;
 using Application.Project.Commands.CreateProject;
 using Application.Project.Commands.DeleteProject;
 using Application.Project.Commands.UpdateProject;
@@ -54,7 +55,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("projects", Name = nameof(GetProjects))]
-        public async Task<ActionResult<List<Project>>> GetProjects()
+        public async Task<ActionResult<List<ProjectDto>>> GetProjects()
         {
            var response = await Mediator.Send(new GetProjectsQuery());
 

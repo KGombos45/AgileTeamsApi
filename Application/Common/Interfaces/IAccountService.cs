@@ -6,9 +6,9 @@ namespace Application.Common.Interfaces
 {
     public interface IAccountService
     {
-        public Task<IdentityResult> Register(UserRegistrationDto user);
+        public Task<IdentityResult> Register(RegistrationRequest user);
         public Task<string> Login(string username, string password);
-        public Task<ApplicationUser> GetUserAccount();
-        public Task<IdentityResult> UpdateUserAccount(string id, ApplicationUser user);
+        public Task<ApplicationUserDto> GetLoggedInUser();
+        public Task<IdentityResult> UpdateUserAccount(string id, ApplicationUserDto user);
     }
 }

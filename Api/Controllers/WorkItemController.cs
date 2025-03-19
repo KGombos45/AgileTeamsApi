@@ -13,6 +13,7 @@ using Application.WorkItem.Queries.GetWorkItemStatusCount;
 using Application.WorkItem.Queries.GetWorkItemTypeCount;
 using Application.WorkItem.Queries.GetWorkItemTypes;
 using Domain.Entities.AgileTeams;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -61,11 +62,12 @@ namespace Api.Controllers
         }
 
         [HttpPost("addComment", Name = nameof(CreateComment))]
-        public async Task<ActionResult<WorkItem>> CreateComment([FromBody] WorkItemComment workItemComment)
+        [Authorize]
+        public async Task<ActionResult> CreateComment([FromBody] CommentRequest comment)
         {
             var command = new CreateCommentCommand
             {
-                WorkItemComment = workItemComment
+                Comment = comment
             };
 
             await Mediator.Send(command);
@@ -98,7 +100,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("workItems", Name = nameof(GetWorkItems))]
-        public async Task<ActionResult<List<WorkItem>>> GetWorkItems()
+        public async Task<ActionResult<List<WorkItemDto>>> GetWorkItems()
         {
             var response = await Mediator.Send(new GetWorkItemsQuery());
 
@@ -132,7 +134,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("{userId}/workItems", Name = nameof(GetUserWorkItems))]
-        public async Task<ActionResult<List<WorkItem>>> GetUserWorkItems([FromRoute] string userId)
+        public async Task<ActionResult<List<WorkItemDto>>> GetUserWorkItems([FromRoute] string userId)
         {
             var query = new GetUserWorkItemsQuery
             {

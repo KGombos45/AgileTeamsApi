@@ -1,6 +1,7 @@
 ﻿
 using Application.Common.Interfaces;
 using Application.Common.Models;
+using AutoMapper;
 using Domain.Entities.AgileTeams;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
@@ -12,11 +13,15 @@ namespace Infrastructure.Services
     {
         private readonly AgileTeamsContext _context;
         private UserManager<ApplicationUser> _userManager;
+        private readonly IMapper _mapper;
 
-        public TicketService(AgileTeamsContext context, UserManager<ApplicationUser> userManager)
+        public TicketService(AgileTeamsContext context, 
+            UserManager<ApplicationUser> userManager,
+            IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
+            _mapper = mapper;
         }
         public async Task CreateTicket(Ticket ticket)
         {
@@ -117,16 +122,16 @@ namespace Infrastructure.Services
 
             return counts;
         }
-        public async Task<List<Ticket>> GetTickets()
+        public async Task<List<TicketDto>> GetTickets()
         {
             var tickets = await _context.Tickets.Include(t => t.TicketOwner)
                 .Include(t => t.TicketWorkItem)
                 .Include(t => t.TicketStatus)
                 .Include(t => t.TicketType).ToListAsync();
 
-            return tickets;
+            return _mapper.Map<List<TicketDto>>(tickets);
         }
-        public async Task<List<Ticket>> GetUserTickets(string userId)
+        public async Task<List<TicketDto>> GetUserTickets(string userId)
         {
             var tickets = await _context.Tickets.Include(t => t.TicketOwner)
                                             .Include(t => t.TicketWorkItem)
@@ -134,7 +139,7 @@ namespace Infrastructure.Services
                                             .Include(t => t.TicketType)
                                             .Where(t => t.TicketOwnerID.Equals(userId)).ToListAsync();
 
-            return tickets;
+            return _mapper.Map<List<TicketDto>>(tickets);
         }
     }
 }

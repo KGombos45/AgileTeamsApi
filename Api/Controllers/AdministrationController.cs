@@ -3,7 +3,9 @@ using Application.Administration.Commands.DeleteUser;
 using Application.Administration.Commands.UpdateUserRole;
 using Application.Administration.Queries.GetRoles;
 using Application.Administration.Queries.GetUserProfiles;
+using Application.Common.Models;
 using Domain.Entities.AgileTeams;
+using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +16,7 @@ namespace Api.Controllers;
 public class AdministrationController : ApiControllerBase
 {
     [HttpGet("users", Name = nameof(GetUserProfiles))]
-    public async Task<ActionResult<List<ApplicationUser>>> GetUserProfiles()
+    public async Task<ActionResult<List<ApplicationUserDto>>> GetUserProfiles()
     {
         var response = await Mediator.Send(new GetUserProfilesQuery());
 
@@ -22,14 +24,14 @@ public class AdministrationController : ApiControllerBase
 
     }
 
-    [HttpPut("{id}/update", Name = nameof(UpdateUserRole))]
+    [HttpPut("{id}/update/{role}", Name = nameof(UpdateUserRole))]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateUserRole([FromRoute] string id, [FromBody] ApplicationUser applicationUserRole)
+    public async Task<IActionResult> UpdateUserRole([FromRoute] string id, [FromRoute] IdentityRoles role)
     {
         var command = new UpdateUserRoleCommand
         {
             UserId = id,
-            User = applicationUserRole,
+            Role = role,
         };
 
         await Mediator.Send(command);

@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text;
 using Application.Common.Interfaces;
 using Application.Common.Models;
+using AutoMapper;
 using Domain.Entities.AgileTeams;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
@@ -23,17 +24,22 @@ namespace Infrastructure.Services
         private readonly AgileTeamsContext _agileTeamsContext;
         private readonly ApplicationSettings _applicationSettings;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMapper _mapper;
 
-
-        public AccountService(UserManager<ApplicationUser> userManager, AgileTeamsContext agileTeamsContext, IOptions<ApplicationSettings> applicationSettings, IHttpContextAccessor httpContextAccessor)
+        public AccountService(UserManager<ApplicationUser> userManager, 
+            AgileTeamsContext agileTeamsContext, 
+            IOptions<ApplicationSettings> applicationSettings, 
+            IHttpContextAccessor httpContextAccessor,
+            IMapper mapper)
         {
             _userManager = userManager;
             _agileTeamsContext = agileTeamsContext;
             _applicationSettings = applicationSettings.Value;
             _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
         }
 
-        public async Task<IdentityResult> Register(UserRegistrationDto user)
+        public async Task<IdentityResult> Register(RegistrationRequest user)
         {
             var existingUser = await _userManager.FindByNameAsync(user.UserName);
             var existingEmail = await _userManager.FindByEmailAsync(user.Email);
@@ -47,14 +53,7 @@ namespace Infrastructure.Services
                 throw new InvalidOperationException("Email already register.");
             }
 
-            var applicationUser = new ApplicationUser
-            {
-                UserName = user.UserName,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Role = "User"
-            };
+            var applicationUser = _mapper.Map<ApplicationUser>(user);
 
             var result = await _userManager.CreateAsync(applicationUser, user.Password);
             await _userManager.AddToRoleAsync(applicationUser, applicationUser.Role);
@@ -86,19 +85,23 @@ namespace Infrastructure.Services
                 }
 
                 var userRole = roles.FirstOrDefault();
+
                 if (string.IsNullOrEmpty(userRole))
                 {
                     throw new InvalidOperationException("User does not have any roles assigned.");
                 }
 
+                var claims = new[]
+                {
+                    new Claim(ClaimTypes.Name, user.UserName), 
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),  
+                    new Claim(ClaimTypes.Role, userRole)
+                };
+
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
-                    Subject = new ClaimsIdentity(new[]
-                    {
-                        new Claim("UserID", user.Id.ToString()),
-                        new Claim(_options.ClaimsIdentity.RoleClaimType, userRole)
-                    }),
-                    Expires = DateTime.UtcNow.AddMinutes(20),
+                    Subject = new ClaimsIdentity(claims),
+                    Expires = DateTime.UtcNow.AddMinutes(20), 
                     SigningCredentials = new SigningCredentials(
                         new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_applicationSettings.JWT_Token)),
                         SecurityAlgorithms.HmacSha256Signature)
@@ -109,7 +112,6 @@ namespace Infrastructure.Services
                 var token = tokenHandler.WriteToken(securityToken);
 
                 return token;
-
             }
             else
             {
@@ -117,21 +119,34 @@ namespace Infrastructure.Services
             }
         }
 
-        public async Task<ApplicationUser> GetUserAccount()
+        public async Task<ApplicationUserDto> GetLoggedInUser()
         {
             var httpContext = _httpContextAccessor.HttpContext;
-            if (httpContext == null)
+
+            if (httpContext == null || httpContext.User == null)
             {
                 throw new InvalidOperationException("HttpContext is null");
             }
 
-            string userId = httpContext.User.Claims.First(x => x.Type == "UserID").Value;
+            var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+            {
+                throw new InvalidOperationException("User claim is null");
+            }
+
+            string userId = userIdClaim.Value;
             var user = await _userManager.FindByIdAsync(userId);
 
-            return user;
+            if (user == null)
+            {
+                throw new DirectoryNotFoundException("User could not be found");
+            }
+
+            return _mapper.Map<ApplicationUserDto>(user);
         }
 
-        public async Task<IdentityResult> UpdateUserAccount(string id, ApplicationUser user)
+        public async Task<IdentityResult> UpdateUserAccount(string id, ApplicationUserDto user)
         {
             var applicationUser = await _userManager.FindByIdAsync(user.Id);
 
@@ -140,9 +155,14 @@ namespace Infrastructure.Services
                 throw new DirectoryNotFoundException();
             }
 
+            applicationUser.FirstName = user.FirstName;
+            applicationUser.LastName = user.LastName;
+            applicationUser.Email = user.Email;
+            applicationUser.Role = user.Role;
+
             try
             {
-                var result = await _userManager.UpdateAsync(user);
+                var result = await _userManager.UpdateAsync(applicationUser);
 
                 return result;
 

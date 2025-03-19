@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Interfaces;
+using Application.Common.Models;
 using MediatR;
 
 namespace Application.Project.Queries.GetProjects
 {
-    using Project = Domain.Entities.AgileTeams.Project;
-
-    public class GetProjectsQueryHandler : IRequestHandler<GetProjectsQuery, List<Project>>
+    public class GetProjectsQueryHandler : IRequestHandler<GetProjectsQuery, List<ProjectDto>>
     {
         private readonly IProjectService _projectService;
 
@@ -18,7 +17,7 @@ namespace Application.Project.Queries.GetProjects
         {
             _projectService = projectService;
         }
-        public async Task<List<Project>> Handle(GetProjectsQuery request, CancellationToken cancellationToken)
+        public async Task<List<ProjectDto>> Handle(GetProjectsQuery request, CancellationToken cancellationToken)
         {
             var response = await _projectService.GetProjects();
 

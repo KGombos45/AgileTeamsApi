@@ -5,12 +5,15 @@ using Application.Common.Models;
 using Domain.Entities.AgileTeams;
 using Infrastructure.Mappings;
 using Infrastructure.Persistence;
+using Infrastructure.Seeders;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure
@@ -28,7 +31,10 @@ namespace Infrastructure
             services.AddScoped<IProjectService, ProjectService>();
             services.AddScoped<ITicketService, TicketService>();
             services.AddScoped<IWorkItemService, WorkItemService>();
+            services.AddScoped<RoleSeeder>();
             services.AddSingleton<ApplicationSettings>();
+
+            services.AddAutoMapper(typeof(ApplicationUserProfile));
 
             // Add Identity services
             services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -36,13 +42,6 @@ namespace Infrastructure
                 .AddDefaultTokenProviders();
 
             var serviceProvider = services.BuildServiceProvider();
-            using (var scope = serviceProvider.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<AgileTeamsContext>();
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                AgileTeamsContext.SeedAsync(context, userManager, roleManager).Wait();
-            }
 
             // Add JWT Authentication
             // Bind ApplicationSettings section to ApplicationSettings class
@@ -57,20 +56,44 @@ namespace Infrastructure
                 cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 cfg.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+             .AddJwtBearer(cfg =>
+             {
+                 cfg.RequireHttpsMetadata = true;
+                 cfg.SaveToken = true;
+                 cfg.TokenValidationParameters = new TokenValidationParameters
+                 {
+                     ValidateIssuerSigningKey = true,
+                     IssuerSigningKey = new SymmetricSecurityKey(token),
+                     ValidateIssuer = false, 
+                     ValidateAudience = false, 
+                     ClockSkew = TimeSpan.Zero 
+                 };
+                 cfg.Events = new JwtBearerEvents
+                 {
+                     OnAuthenticationFailed = context =>
+                     {
+                         var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<AccountService>>();
+                         logger.LogError("Authentication failed: " + context.Exception.Message);
+                         return Task.CompletedTask;
+                     },
+                     OnTokenValidated = context =>
+                     {
+                         var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<AccountService>>();
+                         logger.LogInformation("Token validated successfully");
+                         return Task.CompletedTask;
+                     }
+                 };
+             });
 
-            }).AddJwtBearer(cfg =>
+            using (var scope = serviceProvider.CreateScope())
             {
-                cfg.RequireHttpsMetadata = false;
-                cfg.SaveToken = false;
-                cfg.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(token),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
+                var context = scope.ServiceProvider.GetRequiredService<AgileTeamsContext>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                var roleSeeder = scope.ServiceProvider.GetRequiredService<RoleSeeder>();
+                AgileTeamsContext.SeedAsync(context, userManager, roleManager, roleSeeder).Wait();
+            }
 
             return services;
         }

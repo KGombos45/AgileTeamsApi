@@ -22,7 +22,7 @@ namespace Api.Controllers
     public class AccountController : ApiControllerBase
     {
         [HttpPost("register", Name = nameof(Register))]
-        public async Task<ActionResult<IdentityResult>> Register([FromBody] UserRegistrationDto request)
+        public async Task<ActionResult<IdentityResult>> Register([FromBody] RegistrationRequest request)
         {
             var command = new RegisterCommand
             {
@@ -35,7 +35,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("login", Name = nameof(Login))]
-        public async Task<ActionResult<string>> Login([FromBody] ApplicationUserLogin request)
+        public async Task<ActionResult<string>> Login([FromBody] LoginRequest request)
         {
             var command = new LoginCommand
             {
@@ -50,7 +50,7 @@ namespace Api.Controllers
 
         [HttpGet("userAccount")]
         [Authorize]
-        public async Task<ActionResult<ApplicationUser>> GetUserAccount()
+        public async Task<ActionResult<ApplicationUserDto>> GetUserAccount()
         {
             var response = await Mediator.Send(new GetUserAccountQuery());
 
@@ -59,7 +59,7 @@ namespace Api.Controllers
         }
 
         [HttpPut("update", Name = nameof(UpdateUserAccount))]
-        public async Task<ActionResult<IdentityResult>> UpdateUserAccount([FromBody] ApplicationUser user)
+        public async Task<ActionResult<IdentityResult>> UpdateUserAccount([FromBody] ApplicationUserDto user)
         {
             var command = new UpdateUserAccountCommand
             {

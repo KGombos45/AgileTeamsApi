@@ -19,7 +19,7 @@ namespace Application.Administration.Commands.UpdateUserRole
 
         public async Task<Unit> Handle(UpdateUserRoleCommand request, CancellationToken cancellationToken)
         {
-            await _administrationService.UpdateUserRole(request.UserId, request.User);
+            await _administrationService.UpdateUserRole(request.UserId, request.Role);
 
             return Unit.Value;
         }

@@ -99,7 +99,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("tickets", Name = nameof(GetTickets))]
-        public async Task<ActionResult<List<Ticket>>> GetTickets()
+        public async Task<ActionResult<List<TicketDto>>> GetTickets()
         {
            var response = await Mediator.Send(new GetTicketsQuery());
 
@@ -107,7 +107,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("{userId}/tickets", Name = nameof(GetUserTickets))]
-        public async Task<ActionResult<List<Ticket>>> GetUserTickets([FromRoute] string userId)
+        public async Task<ActionResult<List<TicketDto>>> GetUserTickets([FromRoute] string userId)
         {
             var query = new GetUserTicketsQuery
             {

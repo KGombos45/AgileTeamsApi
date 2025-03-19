@@ -1,5 +1,7 @@
 ﻿using Application.Common.Interfaces;
 using Domain.Entities.AgileTeams;
+using Domain.Enums;
+using Infrastructure.Seeders;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -34,58 +36,44 @@ namespace Infrastructure.Persistence
             modelBuilder.Entity<Project>()
                 .HasMany(p => p.WorkItems)
                 .WithOne(w => w.Project)
-                .HasForeignKey(w => w.WorkItemProjectID);
+                .HasForeignKey(w => w.WorkItemProjectID)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<WorkItem>()
-                .HasKey(t => t.WorkItemID);
+            modelBuilder.Entity<WorkItem>(entity =>
+            {
+                entity.HasKey(t => t.WorkItemID);
+                entity.HasOne(w => w.WorkItemType)
+                    .WithMany()
+                    .HasForeignKey(w => w.WorkItemTypeID);
+                entity.HasOne(w => w.WorkItemPriority)
+                    .WithMany()
+                    .HasForeignKey(w => w.WorkItemPriorityID);
+                entity.HasOne(w => w.WorkItemOwner)
+                    .WithMany()
+                    .HasForeignKey(w => w.WorkItemOwnerID);
+                entity.HasMany(w => w.Tickets)
+                    .WithOne(t => t.TicketWorkItem)
+                    .HasForeignKey(t => t.TicketWorkItemID)
+                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasMany(w => w.Comments)
+                    .WithOne(c => c.WorkItem)
+                    .HasForeignKey(c => c.CommentWorkItemID)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
-            modelBuilder.Entity<WorkItem>()
-                .HasOne(w => w.WorkItemStatus)
-                .WithMany()
-                .HasForeignKey(w => w.WorkItemStatusID);
-
-            modelBuilder.Entity<WorkItem>()
-                .HasOne(w => w.WorkItemType)
-                .WithMany()
-                .HasForeignKey(w => w.WorkItemTypeID);
-
-            modelBuilder.Entity<WorkItem>()
-                .HasOne(w => w.WorkItemPriority)
-                .WithMany()
-                .HasForeignKey(w => w.WorkItemPriorityID);
-
-            modelBuilder.Entity<WorkItem>()
-                .HasOne(w => w.WorkItemOwner)
-                .WithMany()
-                .HasForeignKey(w => w.WorkItemOwnerID);
-
-            modelBuilder.Entity<WorkItem>()
-                .HasMany(w => w.Tickets)
-                .WithOne(t => t.TicketWorkItem)
-                .HasForeignKey(t => t.TicketWorkItemID);
-
-            modelBuilder.Entity<WorkItem>()
-                .HasMany(w => w.Comments)
-                .WithOne(c => c.WorkItem)
-                .HasForeignKey(c => c.CommentWorkItemID);
-
-            modelBuilder.Entity<Ticket>()
-                .HasKey(t => t.TicketID);
-
-            modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.TicketStatus)
-                .WithMany()
-                .HasForeignKey(t => t.TicketStatusID);
-
-            modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.TicketType)
-                .WithMany()
-                .HasForeignKey(t => t.TicketTypeID);
-
-            modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.TicketOwner)
-                .WithMany()
-                .HasForeignKey(t => t.TicketOwnerID);
+            modelBuilder.Entity<Ticket>(entity =>
+            {
+                entity.HasKey(t => t.TicketID);
+                entity.HasOne(t => t.TicketStatus)
+                    .WithMany()
+                    .HasForeignKey(t => t.TicketStatusID);
+                entity.HasOne(t => t.TicketType)
+                    .WithMany()
+                    .HasForeignKey(t => t.TicketTypeID);
+                entity.HasOne(t => t.TicketOwner)
+                    .WithMany()
+                    .HasForeignKey(t => t.TicketOwnerID);
+            });
 
             modelBuilder.Entity<WorkItemStatus>()
                 .HasKey(t => t.StatusID);
@@ -96,8 +84,12 @@ namespace Infrastructure.Persistence
             modelBuilder.Entity<WorkItemType>()
                 .HasKey(t => t.TypeID);
 
-            modelBuilder.Entity<WorkItemComment>()
-                .HasKey(t => t.CommentID);
+            modelBuilder.Entity<WorkItemComment>(entity =>
+            {
+                entity.HasKey(t => t.CommentID);
+                entity.Property(t => t.CommentID)
+                    .ValueGeneratedOnAdd();
+            });
 
             modelBuilder.Entity<TicketStatus>()
                 .HasKey(t => t.StatusID);
@@ -106,12 +98,11 @@ namespace Infrastructure.Persistence
                 .HasKey(t => t.TypeID);
         }
 
-        public static async Task SeedAsync(AgileTeamsContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public static async Task SeedAsync(AgileTeamsContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, RoleSeeder roleSeeder)
         {
             if (!context.Roles.Any())
             {
-                await roleManager.CreateAsync(new IdentityRole("Admin"));
-                await roleManager.CreateAsync(new IdentityRole("User"));
+                await roleSeeder.SeedRolesAsync();
             }
 
             if (!context.Users.Any())
@@ -123,7 +114,7 @@ namespace Infrastructure.Persistence
                     FirstName = "John",
                     LastName = "Doe",
                     EmailConfirmed = true,
-                    Role = "Admin"
+                    Role = IdentityRoles.Admin.GetDescription(),
                 };
                 await userManager.CreateAsync(user1, "Password123!");
                 await userManager.AddToRoleAsync(user1, user1.Role);
@@ -135,7 +126,7 @@ namespace Infrastructure.Persistence
                     FirstName = "Jane",
                     LastName = "Doe",
                     EmailConfirmed = true,
-                    Role = "User",
+                    Role = IdentityRoles.Developer.GetDescription(),
                 };
                 await userManager.CreateAsync(user2, "Password123!");
                 await userManager.AddToRoleAsync(user2, user2.Role);

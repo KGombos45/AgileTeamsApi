@@ -28,8 +28,9 @@ builder.Services.AddSwaggerGen(options =>
         Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
         Name = "Authorization",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -85,7 +86,8 @@ if (app.Environment.IsDevelopment())
             var identity = new ClaimsIdentity(new[]
             {
                 new Claim(ClaimTypes.Name, "Admin"),
-                new Claim(ClaimTypes.Role, "Admin")
+                new Claim(ClaimTypes.Role, "Admin"),
+                new Claim(ClaimTypes.NameIdentifier, "2")
             }, "TestAuthentication");
 
             context.User = new ClaimsPrincipal(identity);

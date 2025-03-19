@@ -1,5 +1,7 @@
 ﻿
 using Application.Common.Interfaces;
+using Application.Common.Models;
+using AutoMapper;
 using Domain.Entities.AgileTeams;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
@@ -10,10 +12,13 @@ namespace Infrastructure.Services
     public class ProjectService : IProjectService
     {
         private readonly AgileTeamsContext _context;
+        private readonly IMapper _mapper;
 
-        public ProjectService(AgileTeamsContext context)
+        public ProjectService(AgileTeamsContext context,
+            IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
         public async Task CreateProject(Project project)
         {
@@ -48,22 +53,10 @@ namespace Infrastructure.Services
         public async Task DeleteProject(string projectId)
         {
             var project = await _context.Projects.FindAsync(projectId);
-            var workItems = await _context.WorkItems.Where(i => i.WorkItemProjectID == projectId).ToListAsync();
 
             if (project == null)
             {
                 throw new DirectoryNotFoundException();
-            }
-
-            if (workItems.Any())
-            {
-                foreach (var workItem in workItems)
-                {
-                    var tickets = await _context.Tickets.Where(t => t.TicketWorkItemID == workItem.WorkItemID).ToListAsync();
-                    _context.Tickets.RemoveRange(tickets);
-                }
-
-                _context.WorkItems.RemoveRange(workItems);
             }
 
             _context.Projects.Remove(project);
@@ -71,7 +64,7 @@ namespace Infrastructure.Services
 
             return;
         }
-        public async Task<List<Project>> GetProjects()
+        public async Task<List<ProjectDto>> GetProjects()
         {
             var projects = await _context.Projects
                 .Include(p => p.WorkItems).ThenInclude(w => w.Tickets)
@@ -82,7 +75,7 @@ namespace Infrastructure.Services
                 .Include(p => p.WorkItems).ThenInclude(w => w.WorkItemPriority)
                 .ToListAsync();
 
-            return projects;
+            return _mapper.Map<List<ProjectDto>>(projects);
         }
     }
 }
