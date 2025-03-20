@@ -32,17 +32,36 @@ namespace Infrastructure
             services.AddScoped<ITicketService, TicketService>();
             services.AddScoped<IWorkItemService, WorkItemService>();
             services.AddScoped<RoleSeeder>();
+
             services.AddSingleton<ApplicationSettings>();
 
             services.AddAutoMapper(typeof(ApplicationUserProfile));
 
-            // Add Identity services
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<AgileTeamsContext>()
                 .AddDefaultTokenProviders();
 
+            AddAppAuthorization(services, configuration);
+            SeedInitialData(services);
+
+            return services;
+        }
+
+        public static void SeedInitialData(IServiceCollection services)
+        {
             var serviceProvider = services.BuildServiceProvider();
 
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<AgileTeamsContext>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                var roleSeeder = scope.ServiceProvider.GetRequiredService<RoleSeeder>();
+                AgileTeamsContext.SeedAsync(context, userManager, roleManager, roleSeeder).Wait();
+            }
+        }
+        public static IServiceCollection AddAppAuthorization(IServiceCollection services, IConfiguration configuration)
+        {
             // Add JWT Authentication
             // Bind ApplicationSettings section to ApplicationSettings class
             services.Configure<ApplicationSettings>(configuration.GetSection("ApplicationSettings"));
@@ -65,9 +84,9 @@ namespace Infrastructure
                  {
                      ValidateIssuerSigningKey = true,
                      IssuerSigningKey = new SymmetricSecurityKey(token),
-                     ValidateIssuer = false, 
-                     ValidateAudience = false, 
-                     ClockSkew = TimeSpan.Zero 
+                     ValidateIssuer = false,
+                     ValidateAudience = false,
+                     ClockSkew = TimeSpan.Zero
                  };
                  cfg.Events = new JwtBearerEvents
                  {
@@ -86,16 +105,8 @@ namespace Infrastructure
                  };
              });
 
-            using (var scope = serviceProvider.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<AgileTeamsContext>();
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                var roleSeeder = scope.ServiceProvider.GetRequiredService<RoleSeeder>();
-                AgileTeamsContext.SeedAsync(context, userManager, roleManager, roleSeeder).Wait();
-            }
-
             return services;
         }
     }
 }
+
