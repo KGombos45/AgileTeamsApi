@@ -27,21 +27,27 @@ namespace Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<ApplicationUser>()
-                .HasKey(t => t.Id);
+            modelBuilder.Entity<ApplicationUser>(entity =>
+            {
+                entity.HasKey(t => t.Id);
+            });
 
-            modelBuilder.Entity<Project>()
-                .HasKey(t => t.ProjectID);
-
-            modelBuilder.Entity<Project>()
-                .HasMany(p => p.WorkItems)
-                .WithOne(w => w.Project)
-                .HasForeignKey(w => w.WorkItemProjectID)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Project>(entity =>
+            {
+                entity.HasKey(t => t.ProjectID);
+                entity.Property(t => t.ProjectID)
+                    .ValueGeneratedOnAdd();
+                entity.HasMany(p => p.WorkItems)
+                    .WithOne(w => w.Project)
+                    .HasForeignKey(w => w.WorkItemProjectID)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
             modelBuilder.Entity<WorkItem>(entity =>
             {
                 entity.HasKey(t => t.WorkItemID);
+                entity.Property(t => t.WorkItemID)
+                    .ValueGeneratedOnAdd();
                 entity.HasOne(w => w.WorkItemType)
                     .WithMany()
                     .HasForeignKey(w => w.WorkItemTypeID);
@@ -64,6 +70,8 @@ namespace Infrastructure.Persistence
             modelBuilder.Entity<Ticket>(entity =>
             {
                 entity.HasKey(t => t.TicketID);
+                entity.Property(t => t.TicketID)
+                    .ValueGeneratedOnAdd();
                 entity.HasOne(t => t.TicketStatus)
                     .WithMany()
                     .HasForeignKey(t => t.TicketStatusID);
@@ -98,12 +106,18 @@ namespace Infrastructure.Persistence
                 .HasKey(t => t.TypeID);
         }
 
-        public static async Task SeedAsync(AgileTeamsContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, RoleSeeder roleSeeder)
+        public static async Task SeedAsync(AgileTeamsContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, EnumsSeeder enumsSeeder)
         {
             if (!context.Roles.Any())
             {
-                await roleSeeder.SeedRolesAsync();
+                await enumsSeeder.SeedEnumsAsync();
+                await context.SaveChangesAsync();
             }
+
+            var project1Id = "e0a7f5a7-44d8-4c98-9c18-5b87c0ff13ff";
+            var project2Id = "4d89bb4d-53a4-4b1f-b073-22e0c5b8d446";
+            var workItem1Id = "adf4b8fa-bb0f-44bc-9e0f-1ed3f0749c1b";
+            var workItem2Id = "d3e81a2f-f7a4-464d-8906-e4e1f18a8a43";
 
             if (!context.Users.Any())
             {
@@ -132,51 +146,6 @@ namespace Infrastructure.Persistence
                 await userManager.AddToRoleAsync(user2, user2.Role);
             }
 
-            if (!context.WorkItemStatuses.Any())
-            {
-                context.WorkItemStatuses.AddRange(
-                    new WorkItemStatus { StatusID = 1, StatusName = "Open" },
-                    new WorkItemStatus { StatusID = 2, StatusName = "In Progress" },
-                    new WorkItemStatus { StatusID = 3, StatusName = "Closed" }
-                );
-            }
-
-            if (!context.WorkItemPriorities.Any())
-            {
-                context.WorkItemPriorities.AddRange(
-                    new WorkItemPriority { PriorityID = 1, PriorityName = "Low" },
-                    new WorkItemPriority { PriorityID = 2, PriorityName = "Medium" },
-                    new WorkItemPriority { PriorityID = 3, PriorityName = "High" }
-                );
-            }
-
-            if (!context.WorkItemTypes.Any())
-            {
-                context.WorkItemTypes.AddRange(
-                    new WorkItemType { TypeID = 1, TypeName = "Bug" },
-                    new WorkItemType { TypeID = 2, TypeName = "Feature" },
-                    new WorkItemType { TypeID = 3, TypeName = "Task" }
-                );
-            }
-
-            if (!context.TicketStatuses.Any())
-            {
-                context.TicketStatuses.AddRange(
-                    new TicketStatus { StatusID = 1, StatusName = "New" },
-                    new TicketStatus { StatusID = 2, StatusName = "In Progress" },
-                    new TicketStatus { StatusID = 3, StatusName = "Resolved" }
-                );
-            }
-
-            if (!context.TicketTypes.Any())
-            {
-                context.TicketTypes.AddRange(
-                    new TicketType { TypeID = 1, TypeName = "Bug" },
-                    new TicketType { TypeID = 2, TypeName = "Feature" },
-                    new TicketType { TypeID = 3, TypeName = "Task" }
-                );
-            }
-
             await context.SaveChangesAsync();
 
             if (!context.Projects.Any())
@@ -184,7 +153,7 @@ namespace Infrastructure.Persistence
                 context.Projects.AddRange(
                     new Project
                     {
-                        ProjectID = "1",
+                        ProjectID = project1Id,
                         ProjectName = "Project 1",
                         Description = "Description for Project 1",
                         CreatedOn = DateTime.UtcNow,
@@ -193,7 +162,7 @@ namespace Infrastructure.Persistence
                     },
                     new Project
                     {
-                        ProjectID = "2",
+                        ProjectID = project2Id,
                         ProjectName = "Project 2",
                         Description = "Description for Project 2",
                         CreatedOn = DateTime.UtcNow,
@@ -206,20 +175,20 @@ namespace Infrastructure.Persistence
 
             if (!context.WorkItems.Any())
             {
-                var project1 = context.Projects.First(p => p.ProjectID == "1");
-                var project2 = context.Projects.First(p => p.ProjectID == "2");
+                var project1 = context.Projects.First(p => p.ProjectID == project1Id);
+                var project2 = context.Projects.First(p => p.ProjectID == project2Id);
                 var user1 = context.Users.First(u => u.UserName == "user1");
                 var user2 = context.Users.First(u => u.UserName == "user2");    
 
                 var workItem1 = new WorkItem
                 {
-                    WorkItemID = "1",
+                    WorkItemID = workItem1Id,
                     WorkItemName = "WorkItem 1",
                     WorkItemDescription = "Description for WorkItem 1",
-                    WorkItemProjectID = "1",
-                    WorkItemStatusID = 1,
-                    WorkItemTypeID = 1,
-                    WorkItemPriorityID = 1,
+                    WorkItemProjectID = project1.ProjectID,
+                    WorkItemStatusID = Domain.Enums.WorkItemStatuses.Refining,
+                    WorkItemTypeID = Domain.Enums.WorkItemTypes.Task,
+                    WorkItemPriorityID = Priorities.Medium,
                     WorkItemOwnerID = user1.Id,
                     CreatedOn = DateTime.UtcNow,
                     CreatedBy = "user1",
@@ -231,13 +200,13 @@ namespace Infrastructure.Persistence
 
                 var workItem2 = new WorkItem
                 {
-                    WorkItemID = "2",
+                    WorkItemID = workItem2Id,
                     WorkItemName = "WorkItem 2",
                     WorkItemDescription = "Description for WorkItem 2",
-                    WorkItemProjectID = "2",
-                    WorkItemStatusID = 2,
-                    WorkItemTypeID = 2,
-                    WorkItemPriorityID = 2,
+                    WorkItemProjectID = project2.ProjectID,
+                    WorkItemStatusID = Domain.Enums.WorkItemStatuses.InProgress,
+                    WorkItemTypeID = Domain.Enums.WorkItemTypes.Defect,
+                    WorkItemPriorityID = Priorities.Low,
                     WorkItemOwnerID = user2.Id,
                     CreatedOn = DateTime.UtcNow,
                     CreatedBy = "user2",
@@ -253,36 +222,34 @@ namespace Infrastructure.Persistence
 
             if (!context.Tickets.Any())
             {
-                var workItem1 = context.WorkItems.First(w => w.WorkItemID == "1");
-                var workItem2 = context.WorkItems.First(w => w.WorkItemID == "2");
+                var workItem1 = context.WorkItems.First(w => w.WorkItemID == workItem1Id);
+                var workItem2 = context.WorkItems.First(w => w.WorkItemID == workItem2Id);
                 var user1 = context.Users.First(u => u.UserName == "user1");
                 var user2 = context.Users.First(u => u.UserName == "user2");
 
                 context.Tickets.AddRange(
                     new Ticket
                     {
-                        TicketID = "1",
                         TicketName = "Ticket 1",
                         TicketDescription = "Description for Ticket 1",
                         CreatedBy = "user1",
-                        TicketStatusID = 1,
-                        TicketTypeID = 1,
+                        TicketStatusID = Domain.Enums.TicketStatuses.InProgress,
+                        TicketTypeID = Domain.Enums.TicketTypes.Task,
                         TicketOwnerID = user1.Id,
-                        TicketWorkItemID = "1",
+                        TicketWorkItemID = workItem1.WorkItemID,
                         CreatedOn = DateTime.UtcNow,
                         ModifiedBy = "user1",
                         TicketWorkItem = workItem1
                     },
                     new Ticket
                     {
-                        TicketID = "2",
                         TicketName = "Ticket 2",
                         TicketDescription = "Description for Ticket 2",
                         CreatedBy = "user2",
-                        TicketStatusID = 2,
-                        TicketTypeID = 2,
+                        TicketStatusID = Domain.Enums.TicketStatuses.Defined,
+                        TicketTypeID = Domain.Enums.TicketTypes.Bug,
                         TicketOwnerID = user2.Id,
-                        TicketWorkItemID = "2",
+                        TicketWorkItemID = workItem2.WorkItemID,
                         CreatedOn = DateTime.UtcNow,
                         ModifiedBy = "user2",
                         TicketWorkItem = workItem2
@@ -293,13 +260,12 @@ namespace Infrastructure.Persistence
 
             if (!context.WorkItemComments.Any())
             {
-                var workItem1 = context.WorkItems.First(w => w.WorkItemID == "1");
-                var workItem2 = context.WorkItems.First(w => w.WorkItemID == "2");
+                var workItem1 = context.WorkItems.First(w => w.WorkItemID == workItem1Id);
+                var workItem2 = context.WorkItems.First(w => w.WorkItemID == workItem2Id);
 
                 context.WorkItemComments.AddRange(
                     new WorkItemComment
                     {
-                        CommentID = "1",
                         Comment = "Comment for WorkItem 1",
                         SubmittedBy = "user1",
                         SubmittedOn = DateTime.UtcNow,
@@ -308,7 +274,6 @@ namespace Infrastructure.Persistence
                     },
                     new WorkItemComment
                     {
-                        CommentID = "2",
                         Comment = "Comment for WorkItem 2",
                         SubmittedBy = "user2",
                         SubmittedOn = DateTime.UtcNow,

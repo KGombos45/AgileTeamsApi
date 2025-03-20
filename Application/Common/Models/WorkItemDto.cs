@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities.AgileTeams;
+using Domain.Enums;
 
 namespace Application.Common.Models
 {
@@ -14,11 +15,11 @@ namespace Application.Common.Models
         public string WorkItemDescription { get; set; }
         public string WorkItemProjectID { get; set; }
         public WorkItemProjectDto Project { get; set; }
-        public int WorkItemStatusID { get; set; }
+        public WorkItemStatuses WorkItemStatusID { get; set; }
         public WorkItemStatus WorkItemStatus { get; set; }
-        public int WorkItemTypeID { get; set; }
+        public WorkItemTypes WorkItemTypeID { get; set; }
         public WorkItemType WorkItemType { get; set; }
-        public int WorkItemPriorityID { get; set; }
+        public Priorities WorkItemPriorityID { get; set; }
         public WorkItemPriority WorkItemPriority { get; set; }
         public string WorkItemOwnerID { get; set; }
         public ApplicationUserDto WorkItemOwner { get; set; }
@@ -57,9 +58,9 @@ namespace Application.Common.Models
         public string TicketName { get; set; }
         public string TicketDescription { get; set; }
         public string CreatedBy { get; set; }
-        public int TicketStatusID { get; set; }
+        public TicketStatuses TicketStatusID { get; set; }
         public TicketStatus TicketStatus { get; set; }
-        public int TicketTypeID { get; set; }
+        public TicketTypes TicketTypeID { get; set; }
         public TicketType TicketType { get; set; }
         public string TicketOwnerID { get; set; }
         public ApplicationUserDto TicketOwner { get; set; }

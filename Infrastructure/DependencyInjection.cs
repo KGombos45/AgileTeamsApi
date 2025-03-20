@@ -31,7 +31,7 @@ namespace Infrastructure
             services.AddScoped<IProjectService, ProjectService>();
             services.AddScoped<ITicketService, TicketService>();
             services.AddScoped<IWorkItemService, WorkItemService>();
-            services.AddScoped<RoleSeeder>();
+            services.AddScoped<EnumsSeeder>();
 
             services.AddSingleton<ApplicationSettings>();
 
@@ -56,8 +56,8 @@ namespace Infrastructure
                 var context = scope.ServiceProvider.GetRequiredService<AgileTeamsContext>();
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                var roleSeeder = scope.ServiceProvider.GetRequiredService<RoleSeeder>();
-                AgileTeamsContext.SeedAsync(context, userManager, roleManager, roleSeeder).Wait();
+                var enumSeeder = scope.ServiceProvider.GetRequiredService<EnumsSeeder>();
+                AgileTeamsContext.SeedAsync(context, userManager, roleManager, enumSeeder).Wait();
             }
         }
         public static IServiceCollection AddAppAuthorization(IServiceCollection services, IConfiguration configuration)

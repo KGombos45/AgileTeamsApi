@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Entities.AgileTeams;
+using Domain.Enums;
 
 namespace Application.Common.Models
 {
@@ -23,11 +24,11 @@ namespace Application.Common.Models
         public string WorkItemName { get; set; }
         public string WorkItemDescription { get; set; }
         public string WorkItemProjectID { get; set; }
-        public int WorkItemStatusID { get; set; }
+        public WorkItemStatuses WorkItemStatusID { get; set; }
         public WorkItemStatus WorkItemStatus { get; set; }
-        public int WorkItemTypeID { get; set; }
+        public WorkItemTypes WorkItemTypeID { get; set; }
         public WorkItemType WorkItemType { get; set; }
-        public int WorkItemPriorityID { get; set; }
+        public Priorities WorkItemPriorityID { get; set; }
         public WorkItemPriority WorkItemPriority { get; set; }
         public string WorkItemOwnerID { get; set; }
         public ApplicationUserDto WorkItemOwner { get; set; }

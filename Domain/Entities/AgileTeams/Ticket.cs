@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Enums;
 
 namespace Domain.Entities.AgileTeams
 {
@@ -15,9 +16,9 @@ namespace Domain.Entities.AgileTeams
         public string TicketName { get; set; }
         public string TicketDescription { get; set; }
         public string CreatedBy { get; set; }
-        public int TicketStatusID { get; set; }
+        public TicketStatuses TicketStatusID { get; set; }
         public TicketStatus TicketStatus { get; set; }
-        public int TicketTypeID { get; set; }
+        public TicketTypes TicketTypeID { get; set; }
         public TicketType TicketType { get; set; }
         public string TicketOwnerID { get; set; }
         public ApplicationUser TicketOwner { get; set; }
@@ -25,7 +26,7 @@ namespace Domain.Entities.AgileTeams
         public WorkItem TicketWorkItem { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime? ModifiedOn { get; set; }
-        public string ModifiedBy { get; set; }
+        public string? ModifiedBy { get; set; }
 
     }
 }

@@ -8,7 +8,7 @@ namespace Application.Common.Interfaces
     using WorkItem = Domain.Entities.AgileTeams.WorkItem;
     public interface IWorkItemService
     {
-        public Task Create(WorkItem workItem);
+        public Task Create(CreateWorkItemDto workItem);
         public Task Update(UpdateWorkItemDto workItem);
         public Task Delete(string workItemId);
         public Task CreateComment(CommentRequest comment);

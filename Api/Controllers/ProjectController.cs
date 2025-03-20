@@ -15,7 +15,7 @@ namespace Api.Controllers
     public class ProjectController : ApiControllerBase
     {
         [HttpPost("create", Name = nameof(CreateProject))]
-        public async Task<ActionResult> CreateProject([FromBody] Project project)
+        public async Task<ActionResult> CreateProject([FromBody] CreateProjectDto project)
         {
             var command = new CreateProjectCommand
             {

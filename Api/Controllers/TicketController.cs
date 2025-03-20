@@ -20,7 +20,7 @@ namespace Api.Controllers
     public class TicketController : ApiControllerBase
     {
         [HttpPost("create", Name = nameof(CreateTicket))]
-        public async Task<ActionResult> CreateTicket([FromBody] Ticket ticket)
+        public async Task<ActionResult> CreateTicket([FromBody] CreateTicketDto ticket)
         {
             var command = new CreateTicketCommand
             {
@@ -33,7 +33,7 @@ namespace Api.Controllers
         }
 
         [HttpPut("update", Name = nameof(UpdateTicket))]
-        public async Task<ActionResult> UpdateTicket([FromBody] Ticket ticket)
+        public async Task<ActionResult> UpdateTicket([FromBody] UpdateTicketDto ticket)
         {
             var command = new UpdateTicketCommand
             {
@@ -56,6 +56,27 @@ namespace Api.Controllers
             await Mediator.Send(command);
 
             return Ok();
+        }
+
+        [HttpGet("tickets", Name = nameof(GetTickets))]
+        public async Task<ActionResult<List<TicketDto>>> GetTickets()
+        {
+            var response = await Mediator.Send(new GetTicketsQuery());
+
+            return Ok(response);
+        }
+
+        [HttpGet("{userId}/tickets", Name = nameof(GetUserTickets))]
+        public async Task<ActionResult<List<TicketDto>>> GetUserTickets([FromRoute] string userId)
+        {
+            var query = new GetUserTicketsQuery
+            {
+                UserId = userId
+            };
+
+            var response = await Mediator.Send(query);
+
+            return Ok(response);
         }
 
         [HttpGet("statuses", Name = nameof(GetTicketStatuses))]
@@ -98,25 +119,5 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet("tickets", Name = nameof(GetTickets))]
-        public async Task<ActionResult<List<TicketDto>>> GetTickets()
-        {
-           var response = await Mediator.Send(new GetTicketsQuery());
-
-            return Ok(response);
-        }
-
-        [HttpGet("{userId}/tickets", Name = nameof(GetUserTickets))]
-        public async Task<ActionResult<List<TicketDto>>> GetUserTickets([FromRoute] string userId)
-        {
-            var query = new GetUserTicketsQuery
-            {
-                UserId = userId
-            };
-
-            var response = await Mediator.Send(query);
-
-            return Ok(response);
-        }
     }
 }

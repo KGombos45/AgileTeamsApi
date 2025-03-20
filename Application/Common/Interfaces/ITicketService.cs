@@ -13,8 +13,8 @@ namespace Application.Common.Interfaces
     public interface ITicketService
     {
         public Task<List<TicketDto>> GetTickets();
-        public Task CreateTicket(Ticket ticket);
-        public Task UpdateTicket(Ticket ticket);
+        public Task CreateTicket(CreateTicketDto ticket);
+        public Task UpdateTicket(UpdateTicketDto ticket);
         public Task DeleteTicket(string id);
         public Task<List<TicketDto>> GetUserTickets(string userId);
         public Task<List<TicketStatus>> GetStatuses();

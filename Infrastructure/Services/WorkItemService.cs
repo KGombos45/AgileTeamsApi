@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Net.Sockets;
+using System.Security.Claims;
 using Application.Common.Interfaces;
 using Application.Common.Models;
 using AutoMapper;
@@ -27,9 +28,24 @@ namespace Infrastructure.Services
             _accountService = accountService;
             _mapper = mapper;
         }
-        public async Task Create(WorkItem workItem)
+        public async Task Create(CreateWorkItemDto workItem)
         {
-            await _context.WorkItems.AddAsync(workItem);
+            var creator = await _accountService.GetLoggedInUser();
+
+            if (creator == null)
+            {
+                throw new DirectoryNotFoundException();
+            }
+
+            var dbWorkItem = new WorkItem
+            {
+                CreatedBy = creator.UserName,
+                CreatedOn = DateTime.Now
+            };
+
+            _mapper.Map(workItem, dbWorkItem);
+
+            await _context.WorkItems.AddAsync(dbWorkItem);
             await _context.SaveChangesAsync();
 
             return;
@@ -39,12 +55,13 @@ namespace Infrastructure.Services
             var existingWorkItem = await _context.WorkItems.FindAsync(workItem.WorkItemID);
 
             var updateUser = await _accountService.GetLoggedInUser();
-            var workItemOwner = await _context.Users.FindAsync(workItem.WorkItemOwnerID);
 
-            if (workItem == null || existingWorkItem == null || updateUser == null || workItemOwner == null)
+            if (workItem == null || existingWorkItem == null || updateUser == null)
             {
                 throw new InvalidOperationException("Work item not found.");
             }
+
+            existingWorkItem.ModifiedBy = updateUser.UserName;
 
             _mapper.Map(workItem, existingWorkItem);
 
@@ -92,6 +109,26 @@ namespace Infrastructure.Services
             await _context.WorkItemComments.AddAsync(fullComment);
             await _context.SaveChangesAsync();
         }
+        public async Task<List<WorkItemDto>> GetWorkItems()
+        {
+            var workItems = await _context.WorkItems
+                .Include(w => w.Project)
+                .Include(w => w.WorkItemStatus)
+                .Include(w => w.WorkItemType)
+                .Include(w => w.WorkItemOwner)
+                .Include(w => w.WorkItemPriority)
+                .Include(w => w.Comments)
+                .Include(w => w.Tickets).ThenInclude(t => t.TicketOwner)
+                .Include(w => w.Tickets).ThenInclude(t => t.TicketStatus).ToListAsync();
+
+            return _mapper.Map<List<WorkItemDto>>(workItems);
+        }
+        public async Task<List<WorkItemDto>> GetUserWorkItems(string userId)
+        {
+            var workItems = await _context.WorkItems.Where(w => w.WorkItemOwnerID.Equals(userId)).ToListAsync();
+
+            return _mapper.Map<List<WorkItemDto>>(workItems);
+        }
         public async Task<List<WorkItemStatus>> GetStatuses()
         {
             var statuses = await _context.WorkItemStatuses.ToListAsync();
@@ -109,20 +146,6 @@ namespace Infrastructure.Services
             var priorities = await _context.WorkItemPriorities.ToListAsync();
 
             return priorities;
-        }
-        public async Task<List<WorkItemDto>> GetWorkItems()
-        {
-            var workItems = await _context.WorkItems
-                .Include(w => w.Project)
-                .Include(w => w.WorkItemStatus)
-                .Include(w => w.WorkItemType)
-                .Include(w => w.WorkItemOwner)
-                .Include(w => w.WorkItemPriority)
-                .Include(w => w.Comments)
-                .Include(w => w.Tickets).ThenInclude(t => t.TicketOwner)
-                .Include(w => w.Tickets).ThenInclude(t => t.TicketStatus).ToListAsync();
-
-            return _mapper.Map<List<WorkItemDto>>(workItems);
         }
         public async Task<List<CountResponse>> GetWorkItemStatusCount() {
 
@@ -162,12 +185,6 @@ namespace Infrastructure.Services
                 .ToList();
 
             return counts;
-        }
-        public async Task<List<WorkItemDto>> GetUserWorkItems(string userId)
-        {
-            var workItems = await _context.WorkItems.Where(w => w.WorkItemOwnerID.Equals(userId)).ToListAsync();
-
-            return _mapper.Map<List<WorkItemDto>>(workItems);
         }
     }
 }

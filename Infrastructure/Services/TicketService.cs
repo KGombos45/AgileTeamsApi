@@ -13,39 +13,58 @@ namespace Infrastructure.Services
     {
         private readonly AgileTeamsContext _context;
         private UserManager<ApplicationUser> _userManager;
+        private IAccountService _accountService;
         private readonly IMapper _mapper;
 
         public TicketService(AgileTeamsContext context, 
             UserManager<ApplicationUser> userManager,
+            IAccountService accountService,
             IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
+            _accountService = accountService;
             _mapper = mapper;
         }
-        public async Task CreateTicket(Ticket ticket)
+        public async Task CreateTicket(CreateTicketDto ticket)
         {
-            try
+            var creator = await _accountService.GetLoggedInUser();
+
+            if (creator == null)
             {
-                await _context.Tickets.AddAsync(ticket);
-                await _context.SaveChangesAsync();
-            } catch (DbUpdateConcurrencyException)
-            {
-                throw new DbUpdateConcurrencyException();
+                throw new DirectoryNotFoundException();
             }
 
+            var dbTicket = new Ticket
+            {
+                CreatedBy = creator.UserName,
+                CreatedOn = DateTime.Now
+            };
+
+            _mapper.Map(ticket, dbTicket);
+
+            await _context.Tickets.AddAsync(dbTicket);
+            await _context.SaveChangesAsync();
+
+            return;
         }
-        public async Task UpdateTicket(Ticket ticket)
+        public async Task UpdateTicket(UpdateTicketDto ticket)
         {
-            try
+            var existingTicket = await _context.Tickets.FindAsync(ticket.TicketID);
+
+            var updateUser = await _accountService.GetLoggedInUser();
+
+            if (ticket == null || existingTicket == null || updateUser == null)
             {
-                _context.Tickets.Update(ticket);
-                await _context.SaveChangesAsync();
+                throw new InvalidOperationException("Work item not found.");
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                throw new DbUpdateConcurrencyException();
-            }
+
+            existingTicket.ModifiedBy = updateUser.UserName;
+
+            _mapper.Map(ticket, existingTicket);
+
+            _context.Tickets.Update(existingTicket);
+            await _context.SaveChangesAsync();
         }
         public async Task DeleteTicket(string id)
         {
@@ -66,7 +85,25 @@ namespace Infrastructure.Services
                 throw new DbUpdateConcurrencyException();
             }
         }
+        public async Task<List<TicketDto>> GetTickets()
+        {
+            var tickets = await _context.Tickets.Include(t => t.TicketOwner)
+                .Include(t => t.TicketWorkItem)
+                .Include(t => t.TicketStatus)
+                .Include(t => t.TicketType).ToListAsync();
 
+            return _mapper.Map<List<TicketDto>>(tickets);
+        }
+        public async Task<List<TicketDto>> GetUserTickets(string userId)
+        {
+            var tickets = await _context.Tickets.Include(t => t.TicketOwner)
+                                            .Include(t => t.TicketWorkItem)
+                                            .Include(t => t.TicketStatus)
+                                            .Include(t => t.TicketType)
+                                            .Where(t => t.TicketOwnerID.Equals(userId)).ToListAsync();
+
+            return _mapper.Map<List<TicketDto>>(tickets);
+        }
         public async Task<List<TicketStatus>> GetStatuses()
         {
             var statuses = await _context.TicketStatuses.ToListAsync();
@@ -81,7 +118,6 @@ namespace Infrastructure.Services
             return types;
 
         }
-
         public async Task<List<CountResponse>> GetTicketStatusCount()
         {
             var tickets = await _context.Tickets
@@ -95,7 +131,6 @@ namespace Infrastructure.Services
 
             return counts;
         }
-
         public async Task<List<CountResponse>> GetTicketTypeCount()
         {
             var tickets = await _context.Tickets
@@ -121,25 +156,6 @@ namespace Infrastructure.Services
                 .ToList();
 
             return counts;
-        }
-        public async Task<List<TicketDto>> GetTickets()
-        {
-            var tickets = await _context.Tickets.Include(t => t.TicketOwner)
-                .Include(t => t.TicketWorkItem)
-                .Include(t => t.TicketStatus)
-                .Include(t => t.TicketType).ToListAsync();
-
-            return _mapper.Map<List<TicketDto>>(tickets);
-        }
-        public async Task<List<TicketDto>> GetUserTickets(string userId)
-        {
-            var tickets = await _context.Tickets.Include(t => t.TicketOwner)
-                                            .Include(t => t.TicketWorkItem)
-                                            .Include(t => t.TicketStatus)
-                                            .Include(t => t.TicketType)
-                                            .Where(t => t.TicketOwnerID.Equals(userId)).ToListAsync();
-
-            return _mapper.Map<List<TicketDto>>(tickets);
         }
     }
 }

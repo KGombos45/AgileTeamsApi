@@ -10,6 +10,7 @@ namespace Infrastructure.Mappings
         public WorkItemProfile()
         {
             CreateMap<WorkItemDto, WorkItem>();
+            CreateMap<CreateWorkItemDto, WorkItem>();
             CreateMap<WorkItem, WorkItemDto>();
             CreateMap<Ticket, WorkItemTicketDto>();
             CreateMap<Project, WorkItemProjectDto>();

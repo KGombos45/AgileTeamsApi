@@ -1,4 +1,5 @@
 ﻿
+using System.Net.Sockets;
 using Application.Common.Interfaces;
 using Application.Common.Models;
 using AutoMapper;
@@ -12,25 +13,36 @@ namespace Infrastructure.Services
     public class ProjectService : IProjectService
     {
         private readonly AgileTeamsContext _context;
+        private readonly IAccountService _accountService;
         private readonly IMapper _mapper;
 
         public ProjectService(AgileTeamsContext context,
+            IAccountService accountService,
             IMapper mapper)
         {
             _context = context;
+            _accountService = accountService;
             _mapper = mapper;
         }
-        public async Task CreateProject(Project project)
+        public async Task CreateProject(CreateProjectDto project)
         {
-            try
+            var creator = await _accountService.GetLoggedInUser();
+
+            if (creator == null)
             {
-                await _context.Projects.AddAsync(project);
-                await _context.SaveChangesAsync();
+                throw new DirectoryNotFoundException();
             }
-            catch (DbUpdateConcurrencyException)
+
+            var dbProject = new Project
             {
-                throw new DbUpdateConcurrencyException();
-            }
+                CreatedBy = creator.UserName,
+                CreatedOn = DateTime.Now
+            };
+
+            _mapper.Map(project, dbProject);
+
+            await _context.Projects.AddAsync(dbProject);
+            await _context.SaveChangesAsync();
 
             return;
         }

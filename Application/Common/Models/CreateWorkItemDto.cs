@@ -8,9 +8,8 @@ using Domain.Enums;
 
 namespace Application.Common.Models
 {
-    public class UpdateWorkItemDto
+    public class CreateWorkItemDto
     {
-        public string WorkItemID { get; set; }
         public string WorkItemName { get; set; }
         public string WorkItemDescription { get; set; }
         public string WorkItemProjectID { get; set; }

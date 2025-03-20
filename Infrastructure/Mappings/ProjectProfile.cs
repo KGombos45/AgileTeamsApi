@@ -14,6 +14,7 @@ namespace Infrastructure.Mappings
         public ProjectProfile()
         {
             CreateMap<ProjectDto, Project>();
+            CreateMap<CreateProjectDto, Project>();
             CreateMap<Project, ProjectDto>();
             CreateMap<WorkItem, ProjectWorkItemDto>();
             CreateMap<UpdateProjectDto, Project>()

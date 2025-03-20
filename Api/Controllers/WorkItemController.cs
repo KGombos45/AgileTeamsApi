@@ -23,7 +23,7 @@ namespace Api.Controllers
     public class WorkItemController : ApiControllerBase
     {
         [HttpPost("create", Name = nameof(CreateWorkItem))]
-        public async Task<ActionResult> CreateWorkItem([FromBody] WorkItem workItem)
+        public async Task<ActionResult> CreateWorkItem([FromBody] CreateWorkItemDto workItem)
         {
             var command = new CreateWorkItemCommand
             {
@@ -75,6 +75,27 @@ namespace Api.Controllers
             return Ok();
         }
 
+        [HttpGet("workItems", Name = nameof(GetWorkItems))]
+        public async Task<ActionResult<List<WorkItemDto>>> GetWorkItems()
+        {
+            var response = await Mediator.Send(new GetWorkItemsQuery());
+
+            return Ok(response);
+        }
+
+        [HttpGet("{userId}/workItems", Name = nameof(GetUserWorkItems))]
+        public async Task<ActionResult<List<WorkItemDto>>> GetUserWorkItems([FromRoute] string userId)
+        {
+            var query = new GetUserWorkItemsQuery
+            {
+                UserId = userId
+            };
+
+            var response = await Mediator.Send(query);
+
+            return Ok(response);
+        }
+
         [HttpGet("statuses", Name = nameof(GetWorkItemStatuses))]
         public async Task<ActionResult<List<WorkItemStatus>>> GetWorkItemStatuses()
         {
@@ -99,15 +120,6 @@ namespace Api.Controllers
             return Ok(response);
         }
 
-        [HttpGet("workItems", Name = nameof(GetWorkItems))]
-        public async Task<ActionResult<List<WorkItemDto>>> GetWorkItems()
-        {
-            var response = await Mediator.Send(new GetWorkItemsQuery());
-
-            return Ok(response);
-        }
-
-
         [HttpGet("workItemStatusCount", Name = nameof(GetWorkItemStatusCount))]
         public async Task<ActionResult<List<CountResponse>>> GetWorkItemStatusCount()
         {
@@ -129,19 +141,6 @@ namespace Api.Controllers
         public async Task<ActionResult<List<CountResponse>>> GetWorkItemOwnerCount()
         {
             var response = await Mediator.Send(new GetWorkItemOwnerCountQuery());
-
-            return Ok(response);
-        }
-
-        [HttpGet("{userId}/workItems", Name = nameof(GetUserWorkItems))]
-        public async Task<ActionResult<List<WorkItemDto>>> GetUserWorkItems([FromRoute] string userId)
-        {
-            var query = new GetUserWorkItemsQuery
-            {
-                UserId = userId
-            };
-
-            var response = await Mediator.Send(query);
 
             return Ok(response);
         }

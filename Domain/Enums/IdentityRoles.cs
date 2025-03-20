@@ -10,14 +10,18 @@ namespace Domain.Enums
     public enum IdentityRoles
     {
         [Description("Admin")]
-        Admin,
+        Admin = 1,
+
         [Description("Developer")]
-        Developer,
+        Developer = 2,
+
         [Description("Project Manager")]
-        ProjectManager,
+        ProjectManager = 3,
+
         [Description("Submitter")]
-        Submitter,
+        Submitter = 4,
+
         [Description("Unassigned")]
-        Unassigned
+        Unassigned = 5
     }
 }
