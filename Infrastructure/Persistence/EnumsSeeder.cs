@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 using Application.Common.Interfaces;
 using Domain.Entities.AgileTeams;
 using Domain.Enums;
-using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Seeders
+namespace Infrastructure.Persistence
 {
     public class EnumsSeeder
     {

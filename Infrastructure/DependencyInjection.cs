@@ -5,7 +5,6 @@ using Application.Common.Models;
 using Domain.Entities.AgileTeams;
 using Infrastructure.Mappings;
 using Infrastructure.Persistence;
-using Infrastructure.Seeders;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
